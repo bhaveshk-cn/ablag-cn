@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ablag — Healthcare Complaint Platform Prototype</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F2EA;
+  --surface:#FFFFFF;
+  --ink:#152420;
+  --ink-soft:#5B6D66;
+  --primary:#0C4A3B;
+  --primary-dark:#082F26;
+  --primary-tint:#E4EEE9;
+  --gold:#B8863A;
+  --gold-tint:#F5EBDA;
+  --danger:#B23A2E;
+  --danger-tint:#F8E7E4;
+  --warning:#C9932F;
+  --warning-tint:#FBF0DD;
+  --success:#2E8B57;
+  --success-tint:#E3F2E9;
+  --line:#E3DECF;
+  --radius:16px;
+  --radius-sm:10px;
+  --shadow:0 1px 2px rgba(20,35,30,.04), 0 8px 24px -12px rgba(20,35,30,.12);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+body.lang-ar{font-family:'Noto Sans Arabic','Plus Jakarta Sans',sans-serif}
+.ar{font-family:'Noto Sans Arabic',sans-serif}
+.mono{font-family:'IBM Plex Mono',monospace}
+button{font-family:inherit;cursor:pointer}
+a{color:inherit;text-decoration:none}
+
+/* ===== Topbar ===== */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 28px;background:var(--primary-dark);color:#fff;
+  position:sticky;top:0;z-index:50;
+}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{
+  width:38px;height:38px;border-radius:11px;
+  background:linear-gradient(155deg,var(--gold),#8C6425);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:16px;color:#1B1200;flex-shrink:0;
+}
+.brand-text .name{font-weight:700;font-size:16px;letter-spacing:.2px}
+.brand-text .name .ar{opacity:.75;font-weight:500;margin-inline-start:6px;font-size:14px}
+.brand-text .tag{font-size:11px;color:#B9CFC6;letter-spacing:.4px;text-transform:uppercase}
+.top-right{display:flex;align-items:center;gap:10px}
+.stage-chip{
+  font-size:11px;padding:5px 10px;border-radius:999px;
+  background:rgba(255,255,255,.1);color:#D8E6DF;border:1px solid rgba(255,255,255,.14);
+}
+.role-switch{
+  display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.16);padding:6px 8px 6px 14px;border-radius:999px;
+}
+[dir="rtl"] .role-switch{padding:6px 14px 6px 8px}
+.role-switch select{
+  background:transparent;border:none;color:#fff;font-weight:600;font-size:13px;
+  padding:4px 6px;border-radius:999px;
+}
+.role-switch select option{color:#111}
+.exit-btn{
+  background:#fff;color:var(--primary-dark);border:none;padding:8px 14px;
+  border-radius:999px;font-weight:700;font-size:12.5px;
+}
+.lang-toggle{display:flex;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:3px;gap:2px}
+.lang-toggle button{background:transparent;border:none;color:#D8E6DF;font-weight:700;font-size:12px;padding:6px 12px;border-radius:999px}
+.lang-toggle button.on{background:var(--gold);color:#2A1B04}
+
+/* ===== Layout ===== */
+.app{display:flex;min-height:calc(100vh - 66px)}
+.sidebar{
+  width:250px;flex-shrink:0;background:var(--surface);border-inline-end:1px solid var(--line);
+  padding:22px 14px;
+}
+.side-role{
+  display:flex;gap:10px;align-items:center;padding:0 8px 18px 8px;margin-bottom:14px;
+  border-bottom:1px solid var(--line);
+}
+.side-role .ic{width:34px;height:34px;border-radius:9px;background:var(--primary-tint);color:var(--primary);
+  display:flex;align-items:center;justify-content:center;font-size:16px}
+.side-role .lbl{font-size:12.5px;color:var(--ink-soft);line-height:1.3}
+.side-role .lbl b{display:block;color:var(--ink);font-size:14px}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;
+  font-size:13.5px;font-weight:600;color:var(--ink-soft);margin-bottom:2px;
+}
+.nav-item svg{width:17px;height:17px;flex-shrink:0}
+.nav-item:hover{background:var(--bg)}
+.nav-item.active{background:var(--primary-tint);color:var(--primary)}
+.main{flex:1;padding:28px 32px;max-width:1180px}
+
+/* ===== Landing / role picker ===== */
+.landing{padding:56px 8vw 80px;max-width:1300px;margin:0 auto}
+.landing-head{max-width:760px;margin-bottom:40px}
+.hero-illustration{margin:0 0 44px;padding:20px 10px}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;font-size:11.5px;font-weight:700;
+  letter-spacing:.6px;text-transform:uppercase;color:var(--gold);background:var(--gold-tint);
+  padding:6px 12px;border-radius:999px;margin-bottom:16px;
+}
+[dir="rtl"] .eyebrow{text-transform:none}
+.landing-head h1{font-size:34px;line-height:1.25;margin:0 0 12px;font-weight:800;letter-spacing:-.3px}
+[dir="rtl"] .landing-head h1{font-size:30px;letter-spacing:0}
+.landing-head p{color:var(--ink-soft);font-size:15.5px;line-height:1.7;max-width:640px}
+.role-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px;
+}
+.role-card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px;text-align:start;transition:.15s;box-shadow:var(--shadow);
+}
+.role-card:hover{transform:translateY(-3px);border-color:var(--primary)}
+.role-card .ic{
+  width:44px;height:44px;border-radius:12px;background:var(--primary-tint);color:var(--primary);
+  display:flex;align-items:center;justify-content:center;margin-bottom:14px;font-size:20px
+}
+.role-card h3{margin:0 0 6px;font-size:16px}
+.role-card p{margin:0;color:var(--ink-soft);font-size:13px;line-height:1.6}
+.role-card .go{margin-top:14px;font-size:12.5px;font-weight:700;color:var(--primary);display:flex;align-items:center;gap:5px}
+
+/* ===== Common building blocks ===== */
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+.page-head h1{font-size:23px;margin:0 0 4px;font-weight:800;letter-spacing:-.2px}
+[dir="rtl"] .page-head h1{letter-spacing:0}
+.page-head .sub{color:var(--ink-soft);font-size:13.5px}
+.btn{
+  border:none;padding:10px 16px;border-radius:10px;font-weight:700;font-size:13px;
+  display:inline-flex;align-items:center;gap:7px;
+}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-ghost{background:var(--surface);border:1px solid var(--line);color:var(--ink)}
+.btn-gold{background:var(--gold);color:#2A1B04}
+.btn-danger-o{background:var(--danger-tint);color:var(--danger)}
+
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.kpi .n{font-size:26px;font-weight:800;letter-spacing:-.5px}
+.kpi .l{font-size:12px;color:var(--ink-soft);margin-top:2px}
+.kpi .trend{font-size:11.5px;font-weight:700;margin-top:8px;display:inline-flex;align-items:center;gap:4px}
+.trend.up{color:var(--success)}
+.trend.down{color:var(--danger)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.card-pad{padding:20px}
+.card-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}
+.card-head h3{margin:0;font-size:14.5px}
+.card-head .muted{color:var(--ink-soft);font-size:12px}
+
+table{width:100%;border-collapse:collapse}
+th{
+  text-align:start;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--ink-soft);
+  padding:10px 20px;border-bottom:1px solid var(--line);font-weight:700;
+}
+[dir="rtl"] th{text-transform:none}
+td{padding:13px 20px;border-bottom:1px solid var(--line);font-size:13.5px;text-align:start}
+tr.rowlink{cursor:pointer}
+tr.rowlink:hover td{background:var(--bg)}
+.ticket{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--primary);font-size:12.5px}
+
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:999px}
+.b-open{background:var(--warning-tint);color:var(--warning)}
+.b-review{background:var(--primary-tint);color:var(--primary)}
+.b-resolved{background:var(--success-tint);color:var(--success)}
+.b-escalated{background:var(--danger-tint);color:var(--danger)}
+.kpi-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-inline-end:6px;flex-shrink:0}
+.kpi-dot-green{background:var(--success)}
+.kpi-dot-amber{background:var(--warning)}
+.kpi-dot-red{background:var(--danger)}
+.b-court{background:#EDE6F5;color:#6B3FA0}
+
+.cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px}
+.cat-card{
+  background:var(--surface);border:2px solid var(--line);border-radius:var(--radius-sm);
+  padding:16px;text-align:start;transition:.12s;
+}
+.cat-card:hover{border-color:var(--primary)}
+.cat-card.sel{border-color:var(--primary);background:var(--primary-tint)}
+.cat-card .ic{font-size:20px;margin-bottom:8px;display:block}
+.cat-card b{display:block;font-size:13.5px;margin-bottom:2px}
+.cat-card span{font-size:11.5px;color:var(--ink-soft)}
+
+label.f{display:block;font-size:12.5px;font-weight:700;color:var(--ink-soft);margin:16px 0 6px}
+select.f,input.f,textarea.f{
+  width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-family:inherit;
+  font-size:13.5px;background:#FCFBF8;color:var(--ink);text-align:start;
+}
+textarea.f{resize:vertical;min-height:90px}
+
+/* ===== Ticket rail ===== */
+.rail{display:flex;align-items:flex-start;padding:26px 6px 6px;overflow-x:auto}
+.rail-step{display:flex;flex-direction:column;align-items:center;flex:1;min-width:98px;position:relative}
+.rail-step .dot{
+  width:30px;height:30px;border-radius:50%;background:var(--line);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;z-index:2;
+}
+.rail-step .line{position:absolute;top:15px;height:2px;background:var(--line);width:100%;inset-inline-start:50%;z-index:1}
+.rail-step:last-child .line{display:none}
+.rail-step .txt{font-size:10.5px;text-align:center;margin-top:8px;color:var(--ink-soft);max-width:100px;line-height:1.3;font-weight:600}
+.rail-step.done .dot{background:var(--success)}
+.rail-step.done .line{background:var(--success)}
+.rail-step.current .dot{background:var(--primary);box-shadow:0 0 0 5px var(--primary-tint)}
+.rail-step.current .txt{color:var(--primary);font-weight:800}
+
+.timeline{padding:4px 0}
+.tl-item{display:flex;gap:14px;padding:0 0 22px}
+.tl-item .dot2{width:9px;height:9px;border-radius:50%;background:var(--primary);margin-top:5px;flex-shrink:0}
+.tl-item .body{flex:1;border-inline-start:2px solid var(--line);padding-inline-start:16px;margin-inline-start:-6px;padding-bottom:2px}
+.tl-item:last-child .body{border-color:transparent}
+.tl-item .meta{font-size:11px;color:var(--ink-soft);margin-bottom:3px}
+.tl-item .head{font-weight:700;font-size:13.5px;margin-bottom:4px}
+.tl-item .txt{font-size:13px;color:var(--ink-soft);line-height:1.6;background:var(--bg);border-radius:10px;padding:10px 12px}
+
+.grid2{display:grid;grid-template-columns:1.5fr 1fr;gap:18px}
+.chip{font-size:11.5px;background:var(--bg);border:1px solid var(--line);padding:4px 10px;border-radius:999px;color:var(--ink-soft);font-weight:600}
+.divider{height:1px;background:var(--line);margin:18px 0}
+
+/* charts */
+.bars{display:flex;align-items:flex-end;gap:14px;height:170px;padding:10px 6px;direction:ltr}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end}
+.bar{width:100%;border-radius:6px 6px 0 0;background:var(--primary)}
+.bar-lbl{display:flex;align-items:center;justify-content:center;gap:0;font-size:10.5px;color:var(--ink-soft);text-align:center;font-weight:600}
+.bar-val{font-size:11px;font-weight:700}
+
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px}
+.legend .li{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-soft)}
+.legend .sw{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+.region-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.region{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.region .n{font-size:20px;font-weight:800}
+.region .r{font-size:12px;color:var(--ink-soft)}
+.region .bar-mini{height:5px;border-radius:3px;background:var(--line);margin-top:8px;overflow:hidden;direction:ltr}
+.region .bar-mini i{display:block;height:100%;background:var(--gold)}
+
+.breadcrumb{font-size:12px;color:var(--ink-soft);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.breadcrumb b{color:var(--primary);cursor:pointer}
+
+::-webkit-scrollbar{height:8px;width:8px}
+::-webkit-scrollbar-thumb{background:#D8D2C0;border-radius:8px}
+
+/* ===== Icon sizing (SVG icon() output has no intrinsic size) ===== */
+.side-role .ic svg,.role-card .ic svg,.cat-card .ic svg{width:20px;height:20px}
+.doc-row .dic svg{width:16px;height:16px}
+.brand-mark svg{width:19px;height:19px}
+@media(max-width:380px){.brand-mark svg{width:16px;height:16px}}
+.upload-ic svg{width:100%;height:100%}
+.dropzone{cursor:pointer;transition:border-color .15s,background .15s}
+.dropzone:hover{border-color:var(--primary)!important;background:var(--primary-tint)}
+.attach-list{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.attach-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:12.5px}
+.attach-row svg{width:15px;height:15px;flex-shrink:0;color:var(--ink-soft)}
+.attach-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.attach-size{color:var(--ink-soft);font-size:11px}
+.attach-remove{background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:12px;padding:2px 6px}
+.attach-remove:hover{color:#B23A2E}
+.field-error{color:#B23A2E;font-size:12.5px;margin-top:8px;display:flex;align-items:center;gap:6px}
+.mock-tag{display:inline-block;font-size:10px;color:var(--ink-soft);background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:1px 6px;margin-inline-start:6px;font-weight:600;letter-spacing:.03em}
+.consultant-card svg{width:18px;height:18px}
+
+/* ===== Interaction polish ===== */
+select.f:focus,input.f:focus,textarea.f:focus{
+  outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-tint);
+}
+.btn{transition:background .12s,border-color .12s,transform .08s}
+.btn:active{transform:scale(.97)}
+.btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+.btn-gold:hover{background:#A3752E}
+.btn-danger-o:hover{background:#F2D5CF}
+.nav-item{transition:background .12s,color .12s}
+.role-card{transition:transform .15s,border-color .15s,box-shadow .15s}
+.role-card:hover{box-shadow:0 12px 28px -14px rgba(10,20,16,.25)}
+
+/* ===== Tables: never let a table break the page width ===== */
+.card:has(table){overflow-x:auto}
+table{min-width:540px}
+
+/* ===== Topbar: wrap instead of overflow ===== */
+.topbar{flex-wrap:wrap;row-gap:10px}
+.top-right{flex-wrap:wrap;justify-content:flex-end}
+
+/* ===== Breakpoint 1: tablet (≤900px) ===== */
+@media(max-width:900px){
+  .app{flex-direction:column}
+  .sidebar{width:100%;display:flex;overflow-x:auto;gap:6px;padding:12px}
+  .side-role{display:none}
+  .role-grid,.kpi-row,.cat-grid,.grid2,.region-grid{grid-template-columns:1fr 1fr}
+  .main{padding:22px 20px}
+  .stage-chip{display:none}
+}
+
+/* ===== Breakpoint 2: large phone (≤600px) ===== */
+@media(max-width:600px){
+  .topbar{padding:12px 16px}
+  .brand-text .tag{display:none}
+  .role-switch span{display:none}
+  .main{padding:18px 14px}
+  .landing{padding:32px 5vw 56px}
+  .landing-head h1{font-size:26px}
+  [dir="rtl"] .landing-head h1{font-size:24px}
+  .role-grid,.kpi-row,.cat-grid,.grid2,.region-grid{grid-template-columns:1fr}
+  .page-head{align-items:flex-start}
+  .modal{padding:20px}
+  .two-col-form{grid-template-columns:1fr}
+  .consultant-row{grid-template-columns:1fr}
+}
+
+/* ===== Breakpoint 3: small phone (≤380px) ===== */
+@media(max-width:380px){
+  .brand-mark{width:32px;height:32px;font-size:14px}
+  .exit-btn{padding:7px 10px;font-size:11.5px}
+  .lang-toggle button{padding:5px 9px}
+}
+
+/* ===== Modal ===== */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(15,25,21,.55);backdrop-filter:blur(2px);
+  z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.modal{
+  background:var(--surface);border-radius:18px;max-width:560px;width:100%;
+  max-height:88vh;overflow-y:auto;padding:26px;box-shadow:0 24px 60px -20px rgba(10,20,16,.35);
+}
+.modal h2{margin:0 0 6px;font-size:19px}
+.modal .sub{color:var(--ink-soft);font-size:13.5px;margin-bottom:18px}
+.modal-close{float:inline-end;background:var(--bg);border:none;width:30px;height:30px;border-radius:50%;font-size:15px;color:var(--ink-soft)}
+[dir="rtl"] .modal-close{float:left}
+.confirm-icon{
+  width:52px;height:52px;border-radius:50%;background:var(--success-tint);color:var(--success);
+  display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:14px;
+}
+.two-col-form{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.consultant-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:14px 0}
+.consultant-card{border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;font-size:12.5px;color:var(--ink-soft)}
+.consultant-card b{display:block;color:var(--ink);font-size:13px;margin-bottom:4px}
+.consultant-card .scfhs{font-size:11px;color:var(--ink-soft);margin-top:6px}
+.consultant-card .sign{margin-top:8px;padding:5px;border-radius:6px;background:var(--primary-tint);color:var(--primary);font-size:11px;font-weight:700}
+.doc-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;font-size:13px}
+.doc-row .dic{width:32px;height:32px;border-radius:8px;background:var(--gold-tint);color:var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark" id="brandMark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3 4 6.5v5c0 5 3.4 8.2 8 9.5 4.6-1.3 8-4.5 8-9.5v-5Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+    <div class="brand-text">
+      <div class="name">Ablag <span class="ar">أبلج</span></div>
+      <div class="tag" id="brandTag">Healthcare Complaint Platform · Prototype</div>
+    </div>
+  </div>
+  <div class="top-right" id="topRight"></div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<div style="position:fixed;bottom:8px;inset-inline-end:8px;z-index:150;font-size:10px;color:#8a9a93;background:rgba(255,255,255,.9);padding:3px 9px;border-radius:6px;font-family:'IBM Plex Mono',monospace;pointer-events:none;border:1px solid var(--line)">build 2026-10-28 15:10 UTC</div>
+
+<div class="app" id="app"></div>
+
+<script>
+/* ---------------------------------------------------------
+   i18n dictionaries
+--------------------------------------------------------- */
+const UI = {
+en:{
+  protoBadge:"Prototype · not connected to live data",
+  viewingAs:"Viewing as",
+  exitBtn:"Exit to role picker",
+  brandTag:"Healthcare Complaint Platform · Prototype",
+  brandMark:icon("logomark"),
+  nav:{dashboard:"Dashboard", file:"File a Complaint", track:"Track Complaints", inbox:"Complaint Inbox", respond:"Respond & Communicate", verify:"Verification & Insurance", review:"Complaint Review", queue:"Escalated Queue", decision:"Investigation & Decision"},
+  landing:{eyebrow:"✦ Clickable prototype · demonstration build", title:"One platform, every stakeholder, one ticket number.", sub:"Ablag connects patients, providers, hospitals, health clusters, the Ministry of Health, and specialized courts around a single transparent complaint lifecycle. Choose a stakeholder below to walk through that portal exactly as it would appear in the live application.", open:"Open portal"},
+  col:{ticket:"Ticket", category:"Category", hospital:"Hospital", status:"Status", updated:"Updated", patient:"Patient", cluster:"Cluster", stage:"Stage"},
+  patientDash:{welcome:"Welcome back, Abdullah", sub:"Here's the status of every complaint you've filed.", newComplaint:"File a new complaint", kOpen:"Open complaints", kCourt:"Escalated to court", kResolved:"Resolved", kTotal:"Total filed", my:"My complaints", tap:"Tap any row to track it"},
+  patientFile:{title:"File a complaint", sub:"Select a category, then describe what happened.", step1:"1. Complaint category", hospitalLbl:"Hospital / provider", dateLbl:"Date of incident", describeLbl:"Describe the complaint", describePh:"Provide as much detail as possible — department, staff involved, and what happened.", attachLbl:"Attach supporting documents", attachPh:"Drag files here or click to upload (prototype — not wired to storage)", submit:"Submit complaint", cancel:"Cancel"},
+  patientTrack:{title:"Track complaints", sub:"Every ticket, from submission to final judgement."},
+  ticketDetail:{back:"Back to list", journey:"Complaint journey", stageOf:(n,t)=>`Stage ${n} of ${t}`, timeline:"Activity timeline", summary:"Case summary", ticketLbl:"Ticket", patientLbl:"Patient:", providerLbl:"Provider:", categoryLbl:"Category:", currentLbl:"Current stage:", footnote:"Every stakeholder viewing this ticket sees the same journey — only the available actions differ by role.", viewHearing:"View hearing schedule", closed:"Complaint closed", consultCommittee:"Consult Medical Committee", escalate:"Escalate", openInvestigation:"Open investigation", openResponse:"Open response form", filedBy:"filed by", directClose:"Close complaint", viewJudgementBrief:"View judgement session brief", viewJudgement:"View final judgement", recordSession:"Record session outcome", recordJudgement:"Record final judgement"},
+  providerInbox:{title:"Complaint inbox", sub:"Complaints assigned to your department.", kAwait:"Awaiting your response", kCourt:"In court process", kClosed:"Closed this month", kAvg:"Avg. response time", assigned:"Assigned complaints"},
+  providerRespond:{back:"Back to inbox", respondTo:(id)=>`Respond to ${id}`, patientComplaint:"Patient's complaint", yourResponse:"Your response", yourResponsePh:"Provide clinical context and your response to the patient's complaint.", attachClinical:"Attach clinical notes / evidence", attachPh:"Attach files (prototype)", send:"Send response to administration", saveDraft:"Save draft", caseJourney:"Case journey", routeNote:"Once submitted, your response routes to Ada'a Administration and becomes visible to the patient."},
+  providerVerify:{title:"Verification & insurance", sub:"Professional credential and insurance validation status.", profVerify:"Professional verification", license:"Saudi Commission for Health Specialties license", insurance:"Malpractice insurance", reverify:"Annual re-verification", expat:"Expatriate staff — agency workflow", agency:"Agency:", witness:"Witness on file:", guarantor:"Guarantor:", confirmed:"Confirmed", verified:"Verified", viewGuarantor:"View guarantor documents"},
+  hospitalDash:{title:"Ada'a Administration Dashboard", sub:"King Fahad General Hospital · Ada'a Administration", kYtd:"Complaints (YTD)", kAvgRes:"Avg. resolution time", kEsc:"Escalation rate", kResolvedQ:"Resolved this quarter", queue:"Complaint queue", tap:"Tap to review", t1:"▲ 8% vs last quarter", t2:"▼ 1.1d improved", t3:"▼ 3% improved", t4:"▲ 14"},
+  commitmentQueue:{title:"Escalated complaints", sub:"Cases referred from Ada'a Administrations for investigation.", kAwait:"Awaiting investigation", kCourt:"Referred to court", kAvg:"Avg. investigation time", kClosed:"Closed this year", queue:"Queue"},
+  commitmentDecision:{back:"Back to queue", investigate:(id)=>`Investigate ${id}`, findings:"Investigation findings", findingsPh:"Summarize findings from provider response and medical committee recommendation.", decisionLbl:"Decision", close:"Close complaint", escalateCourt:"Escalate to specialized court", caseJourney:"Case journey",
+    sessionTitle:(id)=>`Session outcome — ${id}`, sessionBriefLbl:"Brief of judgement session", sessionBriefPh:"Summarize what was addressed and decided during the hearing session.", recordSessionBtn:"Record session brief",
+    judgementTitle:(id)=>`Record judgement — ${id}`, verdictLbl:"Verdict", verdictUpheld:"Upheld — in favor of the complaint", verdictDismissed:"Dismissed", verdictSettled:"Settlement ordered", judgementNotesLbl:"Judgement summary", judgementNotesPh:"Summarize the court's final judgement.", recordJudgementBtn:"Record final judgement",
+    closedTitle:(id)=>`${id} — case closed`, closedNote:"This case has reached a final judgement. No further action is available."
+  },
+  clusterDash:{title:"Health cluster monitoring", sub:"Riyadh Health Cluster · 5 hospitals", kTotal:"Total complaints (YTD)", kRate:"Resolution rate", kAvg:"Avg. resolution time", kCourt:"Court escalation rate", byHospital:"Complaints by hospital", typeBreak:"Complaint type breakdown", perf:"Hospital performance comparison", colComplaints:"Complaints", colResolved:"Resolved", colRate:"Resolution rate", colAvgDays:"Avg. days", colStatus:"KPI status", other:"Other", diagCaption:"Medication and emergency complaints often signal a resource gap — staffing, supplies, or lab access — rather than a service-quality issue. Worth reading alongside the KPI status, not on its own."},
+  ministryDash:{title:"National complaint monitoring", sub:"Kingdom-wide visibility across all health clusters", kNational:"National complaints (YTD)", kRate:"National resolution rate", kCourt:"Active court cases", kClusters:"Health clusters reporting", kPending:"Avg. days awaiting judgement", byCluster:"Complaints by health cluster", trend:"Complaint trend — last 6 months", courtMon:"Court case monitoring", registrySearch:"Provider registry search", registrySearchPh:"Search by national ID or registration number", registrySearchBtn:"Search", registryHint:"Look up a provider's current facility and administration without calling the hospital."},
+},
+ar:{
+  protoBadge:"نموذج تجريبي · غير متصل ببيانات فعلية",
+  viewingAs:"العرض بصفة",
+  exitBtn:"العودة لاختيار الطرف",
+  brandTag:"منصة الشكاوى الصحية · نموذج تجريبي",
+  brandMark:icon("logomark"),
+  nav:{dashboard:"لوحة التحكم", file:"تقديم شكوى", track:"متابعة الشكاوى", inbox:"صندوق الشكاوى", respond:"الرد والتواصل", verify:"التحقق والتأمين", review:"مراجعة الشكوى", queue:"قائمة الشكاوى المُصعّدة", decision:"التحقيق والقرار"},
+  landing:{eyebrow:"✦ نموذج تفاعلي قابل للتصفح · نسخة عرض توضيحي", title:"منصة واحدة، لكل الأطراف، برقم بلاغ واحد.", sub:"تربط منصة أبلج المرضى ومقدمي الرعاية والمستشفيات والتجمعات الصحية ووزارة الصحة والمحاكم المتخصصة ضمن دورة شكوى واحدة شفافة. اختر أحد الأطراف أدناه للتجول في واجهته كما ستظهر في التطبيق الفعلي.", open:"فتح البوابة"},
+  col:{ticket:"رقم البلاغ", category:"الفئة", hospital:"المستشفى", status:"الحالة", updated:"آخر تحديث", patient:"المريض", cluster:"التجمع", stage:"المرحلة"},
+  patientDash:{welcome:"مرحباً بعودتك، عبدالله", sub:"هذه حالة كل شكوى قمت بتقديمها.", newComplaint:"تقديم شكوى جديدة", kOpen:"شكاوى مفتوحة", kCourt:"مُصعّدة للمحكمة", kResolved:"تم حلها", kTotal:"إجمالي الشكاوى", my:"شكاواي", tap:"اضغط على أي صف لمتابعته"},
+  patientFile:{title:"تقديم شكوى", sub:"اختر الفئة ثم صف ما حدث.", step1:"١. فئة الشكوى", hospitalLbl:"المستشفى / مقدم الرعاية", dateLbl:"تاريخ الحادثة", describeLbl:"صف الشكوى", describePh:"قدّم أكبر قدر ممكن من التفاصيل — القسم، الموظفون المعنيون، وما حدث.", attachLbl:"إرفاق المستندات الداعمة", attachPh:"اسحب الملفات هنا أو انقر للرفع (نموذج تجريبي — غير مرتبط بالتخزين الفعلي)", submit:"إرسال الشكوى", cancel:"إلغاء"},
+  patientTrack:{title:"متابعة الشكاوى", sub:"كل بلاغ، من التقديم حتى صدور الحكم النهائي."},
+  ticketDetail:{back:"العودة إلى القائمة", journey:"مسار الشكوى", stageOf:(n,t)=>`المرحلة ${n} من ${t}`, timeline:"سجل الإجراءات", summary:"ملخص الحالة", ticketLbl:"رقم البلاغ", patientLbl:"المريض:", providerLbl:"مقدم الرعاية:", categoryLbl:"الفئة:", currentLbl:"المرحلة الحالية:", footnote:"يرى كل طرف نفس مسار هذا البلاغ — الإجراءات المتاحة فقط تختلف حسب الدور.", viewHearing:"عرض موعد الجلسة", closed:"تم إغلاق الشكوى", consultCommittee:"استشارة اللجنة الطبية", escalate:"تصعيد", openInvestigation:"فتح التحقيق", openResponse:"فتح نموذج الرد", filedBy:"مُقدَّمة من", directClose:"إغلاق الشكوى", viewJudgementBrief:"عرض ملخص جلسة الحكم", viewJudgement:"عرض الحكم النهائي", recordSession:"تسجيل نتيجة الجلسة", recordJudgement:"تسجيل الحكم النهائي"},
+  providerInbox:{title:"صندوق الشكاوى", sub:"الشكاوى المسندة إلى قسمك.", kAwait:"بانتظار ردك", kCourt:"في إجراءات قضائية", kClosed:"أُغلقت هذا الشهر", kAvg:"متوسط وقت الرد", assigned:"الشكاوى المسندة"},
+  providerRespond:{back:"العودة إلى الصندوق", respondTo:(id)=>`الرد على ${id}`, patientComplaint:"شكوى المريض", yourResponse:"ردك", yourResponsePh:"قدّم السياق السريري وردك على شكوى المريض.", attachClinical:"إرفاق الملاحظات السريرية / الأدلة", attachPh:"إرفاق الملفات (نموذج تجريبي)", send:"إرسال الرد إلى الإدارة", saveDraft:"حفظ كمسودة", caseJourney:"مسار الحالة", routeNote:"بعد الإرسال، يُوجَّه ردك إلى إدارة الأداء ويصبح مرئياً للمريض."},
+  providerVerify:{title:"التحقق والتأمين", sub:"حالة التحقق من المؤهلات المهنية والتأمين.", profVerify:"التحقق المهني", license:"ترخيص الهيئة السعودية للتخصصات الصحية", insurance:"تأمين الأخطاء الطبية", reverify:"إعادة التحقق السنوي", expat:"الطاقم الوافد — مسار المكتب", agency:"المكتب:", witness:"الشاهد المسجل:", guarantor:"الكفيل:", confirmed:"مؤكد", verified:"تم التحقق", viewGuarantor:"عرض مستندات الكفيل"},
+  hospitalDash:{title:"لوحة إدارة الأداء", sub:"مستشفى الملك فهد العام · إدارة الأداء", kYtd:"الشكاوى (منذ بداية العام)", kAvgRes:"متوسط وقت الحل", kEsc:"نسبة التصعيد", kResolvedQ:"تم حلها هذا الربع", queue:"قائمة الشكاوى", tap:"اضغط للمراجعة", t1:"▲ 8% مقارنة بالربع السابق", t2:"▼ تحسّن 1.1 يوم", t3:"▼ تحسّن 3%", t4:"▲ 14"},
+  commitmentQueue:{title:"الشكاوى المُصعّدة", sub:"الحالات المُحالة من إدارات المستشفيات للتحقيق.", kAwait:"بانتظار التحقيق", kCourt:"مُحالة للمحكمة", kAvg:"متوسط وقت التحقيق", kClosed:"أُغلقت هذا العام", queue:"القائمة"},
+  commitmentDecision:{back:"العودة إلى القائمة", investigate:(id)=>`التحقيق في ${id}`, findings:"نتائج التحقيق", findingsPh:"لخّص النتائج المستندة إلى رد مقدم الرعاية وتوصية اللجنة الطبية.", decisionLbl:"القرار", close:"إغلاق الشكوى", escalateCourt:"التصعيد إلى المحكمة المتخصصة", caseJourney:"مسار الحالة",
+    sessionTitle:(id)=>`نتيجة الجلسة — ${id}`, sessionBriefLbl:"ملخص جلسة الحكم", sessionBriefPh:"لخّص ما تم تناوله والبت فيه خلال جلسة الاستماع.", recordSessionBtn:"تسجيل ملخص الجلسة",
+    judgementTitle:(id)=>`تسجيل الحكم — ${id}`, verdictLbl:"الحكم", verdictUpheld:"قُبلت — لصالح الشكوى", verdictDismissed:"رُفضت", verdictSettled:"تقرير تسوية", judgementNotesLbl:"ملخص الحكم", judgementNotesPh:"لخّص الحكم النهائي الصادر عن المحكمة.", recordJudgementBtn:"تسجيل الحكم النهائي",
+    closedTitle:(id)=>`${id} — القضية مغلقة`, closedNote:"وصلت هذه القضية إلى حكم نهائي. لا توجد إجراءات إضافية متاحة."
+  },
+  clusterDash:{title:"مراقبة التجمع الصحي", sub:"تجمع الرياض الصحي · 5 مستشفيات", kTotal:"إجمالي الشكاوى (منذ بداية العام)", kRate:"نسبة الحل", kAvg:"متوسط وقت الحل", kCourt:"نسبة التصعيد للمحكمة", byHospital:"الشكاوى حسب المستشفى", typeBreak:"توزيع أنواع الشكاوى", perf:"مقارنة أداء المستشفيات", colComplaints:"الشكاوى", colResolved:"تم حلها", colRate:"نسبة الحل", colAvgDays:"متوسط الأيام", colStatus:"حالة الأداء", other:"أخرى", diagCaption:"غالباً ما تشير شكاوى نقص الأدوية والطوارئ إلى فجوة في الموارد — كنقص الكوادر أو الإمدادات أو المختبرات — وليس بالضرورة إلى ضعف في جودة الخدمة. يُفضَّل قراءتها إلى جانب حالة الأداء، لا بمعزل عنها."},
+  ministryDash:{title:"المراقبة الوطنية للشكاوى", sub:"رؤية على مستوى المملكة عبر جميع التجمعات الصحية", kNational:"الشكاوى الوطنية (منذ بداية العام)", kRate:"نسبة الحل الوطنية", kCourt:"القضايا الجارية", kClusters:"تجمعات صحية تُقدّم تقارير", kPending:"متوسط أيام انتظار الحكم", byCluster:"الشكاوى حسب التجمع الصحي", trend:"اتجاه الشكاوى — آخر 6 أشهر", courtMon:"مراقبة القضايا", registrySearch:"البحث في سجل مقدمي الرعاية", registrySearchPh:"ابحث برقم الهوية الوطنية أو رقم التسجيل", registrySearchBtn:"بحث", registryHint:"العثور على منشأة وإدارة مقدم الرعاية الحالية دون الاتصال بالمستشفى."},
+}
+};
+
+const ROLES = {
+  patient:  {icon:"patient", en:{label:"Patient", desc:"Register, file complaints, and track every stage through to final resolution or court judgement."}, ar:{label:"المريض", desc:"التسجيل وتقديم الشكاوى ومتابعة كل مرحلة حتى الحل النهائي أو صدور حكم المحكمة."}, stages:["dashboard","file","track"]},
+  provider: {icon:"provider", en:{label:"Healthcare Provider", desc:"Verify credentials, respond to complaints, and monitor legal progress on escalated cases."}, ar:{label:"مقدم الرعاية الصحية", desc:"التحقق من المؤهلات، الرد على الشكاوى، ومتابعة الإجراءات القانونية للقضايا المُصعّدة."}, stages:["inbox","respond","verify"]},
+  hospital: {icon:"hospital", en:{label:"Ada'a Administration", desc:"Review complaints, consult the medical committee, and escalate unresolved cases."}, ar:{label:"إدارة الأداء", desc:"مراجعة الشكاوى، استشارة اللجنة الطبية، وتصعيد الحالات غير المحلولة."}, stages:["dashboard","review"]},
+  commitment:{icon:"commitment", en:{label:"Commitment Administration", desc:"Investigate escalated complaints, issue decisions, and refer cases to specialized courts."}, ar:{label:"إدارة الالتزام", desc:"التحقيق في الشكاوى المُصعّدة، إصدار القرارات، وإحالة القضايا إلى المحاكم المتخصصة."}, stages:["queue","decision"]},
+  cluster:  {icon:"cluster", en:{label:"Health Cluster", desc:"Monitor complaint KPIs across hospitals and compare administrative performance."}, ar:{label:"التجمع الصحي", desc:"متابعة مؤشرات أداء الشكاوى عبر المستشفيات ومقارنة أداء الإدارات."}, stages:["dashboard"]},
+  ministry: {icon:"ministry", en:{label:"Ministry of Health", desc:"National-level visibility into complaint trends, cluster performance, and court cases."}, ar:{label:"وزارة الصحة", desc:"رؤية على المستوى الوطني لاتجاهات الشكاوى وأداء التجمعات والقضايا القانونية."}, stages:["dashboard"]},
+};
+
+const CATS = {
+  emergency:{ic:"emergency", en:{t:"Emergency",d:"Urgent, safety-critical incident"}, ar:{t:"طارئ",d:"حادثة عاجلة تمس السلامة"}},
+  error:{ic:"error", en:{t:"Medical Error",d:"Diagnosis or treatment error"}, ar:{t:"خطأ طبي",d:"خطأ في التشخيص أو العلاج"}},
+  mistreat:{ic:"mistreat", en:{t:"Mistreatment",d:"Disrespectful or unfair treatment"}, ar:{t:"سوء معاملة",d:"معاملة غير لائقة أو غير عادلة"}},
+  medication:{ic:"medication", en:{t:"Lack of Medication",d:"Medication unavailable or delayed"}, ar:{t:"نقص الدواء",d:"عدم توفر الدواء أو تأخره"}},
+  general:{ic:"general", en:{t:"General Hospital",d:"Public hospital complaint"}, ar:{t:"مستشفى حكومي",d:"شكوى على مستشفى حكومي"}},
+  private:{ic:"private", en:{t:"Private Hospital",d:"Private hospital complaint"}, ar:{t:"مستشفى خاص",d:"شكوى على مستشفى خاص"}},
+};
+
+const STAGES = {
+  en:["Submitted","Provider Response","Medical Committee","Resolution","Commitment Admin","Specialized Court","Hearing","Judgement"],
+  ar:["تم التقديم","رد مقدم الرعاية","اللجنة الطبية","الحل","إدارة الالتزام","المحكمة المتخصصة","جلسة الاستماع","الحكم النهائي"]
+};
+
+const STATUS = {
+  open:{cls:"open", en:"Awaiting Response", ar:"بانتظار الرد"},
+  resolved:{cls:"resolved", en:"Resolved", ar:"تم الحل"},
+  escalated:{cls:"escalated", en:"Escalated", ar:"تمت الإحالة"},
+  hearing:{cls:"court", en:"Hearing Scheduled", ar:"تحديد جلسة استماع"},
+  judgeWait:{cls:"court", en:"Judgement Wait", ar:"بانتظار الحكم"},
+  judgement:{cls:"court", en:"Judgement Issued", ar:"صدور الحكم"},
+};
+
+const HOSP = {
+  kfgh:{en:"King Fahad General Hospital", ar:"مستشفى الملك فهد العام"},
+  alnoor:{en:"Al Noor Specialist Hospital", ar:"مستشفى النور التخصصي"},
+  sultan:{en:"Prince Sultan Hospital", ar:"مستشفى الأمير سلطان"},
+  habib:{en:"Dr. Sulaiman Al Habib", ar:"مستشفى د. سليمان الحبيب"},
+  hayat:{en:"Al Hayat National Hospital", ar:"مستشفى الحياة الوطني"},
+};
+
+const REGION_NAMES = {
+  riyadh:{en:"Riyadh Cluster", ar:"تجمع الرياض الصحي", city:{en:"Riyadh",ar:"الرياض"}},
+  jeddah:{en:"Jeddah Cluster", ar:"تجمع جدة الصحي", city:{en:"Jeddah",ar:"جدة"}},
+  eastern:{en:"Eastern Cluster", ar:"تجمع المنطقة الشرقية", city:{en:"Eastern",ar:"المنطقة الشرقية"}},
+  madinah:{en:"Madinah Cluster", ar:"تجمع المدينة المنورة", city:{en:"Madinah",ar:"المدينة المنورة"}},
+  asir:{en:"Asir Cluster", ar:"تجمع عسير", city:{en:"Asir",ar:"عسير"}},
+  qassim:{en:"Qassim Cluster", ar:"تجمع القصيم", city:{en:"Qassim",ar:"القصيم"}},
+  makkah:{en:"Makkah Cluster", ar:"تجمع مكة المكرمة", city:{en:"Makkah",ar:"مكة المكرمة"}},
+  tabuk:{en:"Tabuk Cluster", ar:"تجمع تبوك", city:{en:"Tabuk",ar:"تبوك"}},
+};
+
+const TICKETS = [
+  {id:"HC-88231", catKey:"error", hospKey:"kfgh", patient:{en:"Abdullah A.",ar:"عبدالله أ."}, stage:3, path:"resolved", status:"resolved", updated:{en:"2 days ago",ar:"منذ يومين"},
+   log:[
+     {stageIdx:0, m:"Jul 12, 09:14", en:"Complaint filed under Medical Error against Cardiology dept.", ar:"تم تقديم شكوى بتصنيف خطأ طبي ضد قسم القلب."},
+     {stageIdx:1, m:"Jul 14, 11:02", en:"Provider submitted clinical notes and an initial response acknowledging the delay.", ar:"قدّم مقدم الرعاية ملاحظات سريرية وردّاً أولياً يُقر بالتأخير."},
+     {stageIdx:2, m:"Jul 18, 16:40", en:"Committee reviewed the case and recommended a corrective action plan, no escalation required.", ar:"راجعت اللجنة الحالة وأوصت بخطة تصحيحية دون الحاجة للتصعيد."},
+     {stageIdx:3, m:"Jul 20, 10:05", en:"Ada'a Administration closed the complaint after confirming the corrective action was implemented.", ar:"أغلقت إدارة الأداء الشكوى بعد التأكد من تنفيذ الإجراء التصحيحي."},
+   ]},
+  {id:"HC-88190", catKey:"mistreat", hospKey:"alnoor", patient:{en:"Sara M.",ar:"سارة م."}, stage:6, path:"court", status:"hearing", updated:{en:"today",ar:"اليوم"},
+   log:[
+     {stageIdx:0, m:"Jun 30, 08:20", en:"Complaint filed regarding mistreatment by nursing staff during admission.", ar:"تم تقديم شكوى بخصوص سوء معاملة من طاقم التمريض أثناء الدخول."},
+     {stageIdx:1, m:"Jul 02, 14:10", en:"Provider response disputed the account, citing incomplete records.", ar:"اعترض رد مقدم الرعاية على الرواية، مستنداً إلى سجلات غير مكتملة."},
+     {stageIdx:2, m:"Jul 08, 09:30", en:"Committee found the response insufficient and recommended escalation.", ar:"رأت اللجنة أن الرد غير كافٍ وأوصت بالتصعيد."},
+     {stageIdx:4, m:"Jul 11, 12:00", en:"Commitment Administration investigated further and referred the case to a specialized court.", ar:"واصلت إدارة الالتزام التحقيق وأحالت القضية إلى محكمة متخصصة."},
+     {stageIdx:5, m:"Jul 16, 09:00", en:"Case registered with the Specialized Health Court.", ar:"تم تسجيل القضية لدى المحكمة الصحية المتخصصة."},
+     {stageIdx:6, m:"Jul 30, 10:00", en:"First hearing scheduled — patient and provider notified.", ar:"تم تحديد أول جلسة استماع — تم إخطار المريض ومقدم الرعاية."},
+   ]},
+  {id:"HC-88304", catKey:"medication", hospKey:"sultan", patient:{en:"Faisal K.",ar:"فيصل ك."}, stage:1, path:"open", status:"open", updated:{en:"6 hours ago",ar:"منذ 6 ساعات"},
+   log:[
+     {stageIdx:0, m:"Jul 29, 07:55", en:"Complaint filed — prescribed medication unavailable at hospital pharmacy for 3 days.", ar:"تم تقديم شكوى — الدواء الموصوف غير متوفر في صيدلية المستشفى منذ 3 أيام."},
+   ]},
+  {id:"HC-88455", catKey:"emergency", hospKey:"habib", patient:{en:"Lama S.",ar:"لمى س."}, stage:4, path:"court", status:"escalated", updated:{en:"1 day ago",ar:"منذ يوم"},
+   log:[
+     {stageIdx:0, m:"Aug 02, 22:10", en:"Complaint filed — 4-hour wait in the emergency department for a suspected fracture.", ar:"تم تقديم شكوى — انتظار 4 ساعات في قسم الطوارئ لحالة اشتباه كسر."},
+     {stageIdx:1, m:"Aug 03, 10:05", en:"Provider response cited emergency department understaffing on the night shift.", ar:"أشار رد مقدم الرعاية إلى نقص الكوادر في قسم الطوارئ خلال الوردية الليلية."},
+     {stageIdx:2, m:"Aug 05, 13:20", en:"Committee confirmed a staffing gap, recommended escalation for resourcing review.", ar:"أكدت اللجنة وجود نقص في الكوادر وأوصت بالتصعيد لمراجعة الموارد."},
+     {stageIdx:4, m:"Aug 06, 09:00", en:"Ada'a Administration escalated the case to Commitment Administration for resourcing review.", ar:"صعّدت إدارة الأداء الحالة إلى إدارة الالتزام لمراجعة الموارد."},
+   ]},
+  {id:"HC-88512", catKey:"general", hospKey:"hayat", patient:{en:"Omar T.",ar:"عمر ت."}, stage:3, path:"resolved", status:"resolved", updated:{en:"3 days ago",ar:"منذ 3 أيام"},
+   log:[
+     {stageIdx:0, m:"Jul 25, 09:00", en:"Complaint filed regarding unclear discharge instructions.", ar:"تم تقديم شكوى بخصوص تعليمات خروج غير واضحة."},
+     {stageIdx:1, m:"Jul 26, 11:30", en:"Provider issued a revised discharge summary and apologized for the confusion.", ar:"أصدر مقدم الرعاية ملخص خروج محدّثاً واعتذر عن الالتباس."},
+     {stageIdx:3, m:"Jul 27, 15:00", en:"Ada'a Administration closed the complaint; corrective action confirmed with the patient.", ar:"أغلقت إدارة الأداء الشكوى بعد التأكد من الإجراء التصحيحي مع المريض."},
+   ]},
+  {id:"HC-88577", catKey:"private", hospKey:"kfgh", patient:{en:"Huda R.",ar:"هدى ر."}, stage:0, path:"open", status:"open", updated:{en:"just now",ar:"الآن"},
+   log:[
+     {stageIdx:0, m:"Aug 07, 08:40", en:"Complaint filed regarding billing discrepancy at a private outpatient clinic.", ar:"تم تقديم شكوى بخصوص خطأ في الفوترة في عيادة خارجية خاصة."},
+   ]},
+];
+
+const HOSPITALS = [
+  {key:"kfgh", complaints:132, resolved:91, avgDays:6},
+  {key:"alnoor", complaints:98, resolved:54, avgDays:11},
+  {key:"sultan", complaints:76, resolved:60, avgDays:5},
+  {key:"habib", complaints:64, resolved:49, avgDays:4},
+  {key:"hayat", complaints:55, resolved:31, avgDays:9},
+];
+
+const REGIONS = [
+  {key:"riyadh", n:412, pct:78},
+  {key:"jeddah", n:298, pct:64},
+  {key:"eastern", n:221, pct:71},
+  {key:"madinah", n:156, pct:58},
+  {key:"asir", n:134, pct:66},
+  {key:"qassim", n:97, pct:80},
+  {key:"makkah", n:265, pct:69},
+  {key:"tabuk", n:88, pct:74},
+];
+
+const PROVIDER_REGISTRY = [
+  {nid:"1044213087", scfhs:"44210", name:{en:"Dr. Khalid Al-Mutairi",ar:"د. خالد المطيري"}, hospKey:"kfgh", dept:{en:"Cardiology",ar:"أمراض القلب"}, status:"active"},
+  {nid:"1051032988", scfhs:"51032", name:{en:"Dr. Noura Al-Qahtani",ar:"د. نورة القحطاني"}, hospKey:"alnoor", dept:{en:"Emergency Medicine",ar:"طب الطوارئ"}, status:"active"},
+  {nid:"1039987541", scfhs:"39987", name:{en:"Dr. Fahad Al-Otaibi",ar:"د. فهد العتيبي"}, hospKey:"sultan", dept:{en:"Internal Medicine",ar:"الباطنية"}, status:"active"},
+  {nid:"1027641209", scfhs:"27641", name:{en:"Dr. Reem Al-Harbi",ar:"د. ريم الحربي"}, hospKey:"habib", dept:{en:"Pediatrics",ar:"طب الأطفال"}, status:"on-leave"},
+  {nid:"1088305214", scfhs:"88305", name:{en:"Dr. Saad Al-Shahrani",ar:"د. سعد الشهراني"}, hospKey:"hayat", dept:{en:"ICU",ar:"العناية المركزة"}, status:"active"},
+];
+
+/* ---------------------------------------------------------
+   State
+--------------------------------------------------------- */
+let state = { role:null, screen:null, ticket:null, cat:null, lang:"en" };
+
+function go(role, screen, extra){
+  state.role = role; state.screen = screen; state.ticket = null;
+  if(extra) Object.assign(state, extra);
+  render();
+  window.scrollTo({top:0});
+}
+
+function setLang(l){
+  state.lang = l;
+  document.documentElement.lang = l;
+  document.documentElement.dir = l==="ar" ? "rtl" : "ltr";
+  document.body.classList.toggle("lang-ar", l==="ar");
+  render();
+}
+
+/* ---------------------------------------------------------
+   Modal system
+--------------------------------------------------------- */
+function openModal(html){
+  document.getElementById("modalContent").innerHTML = html;
+  document.getElementById("modalOverlay").style.display = "flex";
+}
+function closeModal(){
+  document.getElementById("modalOverlay").style.display = "none";
+}
+
+/* ---------------------------------------------------------
+   Ticket lifecycle actions (real state mutation)
+--------------------------------------------------------- */
+function todayStr(){
+  const d = new Date();
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return `${months[d.getMonth()]} ${d.getDate()}, ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+}
+function newTicketId(){
+  return "HC-" + (89000 + Math.floor(Math.random()*900));
+}
+function addLog(t, stageIdx, en, ar){
+  t.log.push({stageIdx, m:todayStr(), en, ar});
+}
+
+function submitComplaint(){
+  fieldError("fileFormError", "");
+  if(!state.cat){ alert(state.lang==='ar' ? 'يرجى اختيار نوع الشكوى' : 'Please select a complaint category'); return; }
+  const hospSel = document.getElementById("fileHospital");
+  const hospKey = hospSel ? hospSel.value : Object.keys(HOSP)[0];
+  const dateVal = (document.getElementById("fileIncidentDate")||{}).value || "";
+  const desc = ((document.getElementById("fileDesc")||{}).value || "").trim();
+
+  if(!dateVal){
+    fieldError("fileFormError", state.lang==='ar' ? 'يرجى تحديد تاريخ الحادثة.' : 'Please enter the incident date.'); return;
+  }
+  if(new Date(dateVal) > new Date()){
+    fieldError("fileFormError", state.lang==='ar' ? 'لا يمكن أن يكون تاريخ الحادثة في المستقبل.' : 'The incident date cannot be in the future.'); return;
+  }
+  if(desc.length < 20){
+    fieldError("fileFormError", state.lang==='ar' ? 'يرجى وصف الحادثة بتفصيل أكبر (٢٠ حرفاً على الأقل).' : 'Please describe what happened in more detail (at least 20 characters).'); return;
+  }
+
+  const attachInput = document.getElementById("fileAttachInput");
+  const attachCount = attachInput ? attachInput.files.length : 0;
+  const id = newTicketId();
+  const t = {
+    id, catKey: state.cat, hospKey, patient:{en:"Abdullah A.",ar:"عبدالله أ."},
+    incidentDate: dateVal, attachCount,
+    stage:0, path:"open", status:"open", updated:{en:"just now",ar:"الآن"}, log:[]
+  };
+  addLog(t, 0,
+    "Complaint filed: " + desc + (attachCount?` (${attachCount} file(s) attached)`:""),
+    "تم تقديم شكوى: " + desc + (attachCount?` (${attachCount} ملف مرفق)`:"")
+  );
+  TICKETS.unshift(t);
+  state.cat = null;
+  openModal(confirmModal(
+    state.lang==='ar' ? 'تم تقديم الشكوى' : 'Complaint submitted',
+    state.lang==='ar' ? `رقم البلاغ: ${id} — سيصلك رد خلال 48 ساعة كحد أقصى.` : `Ticket number: ${id} — you'll receive a response within 48 hours.`,
+    state.lang==='ar' ? 'عرض البلاغ' : 'View ticket',
+    `closeModal();go('patient','track',{ticket:'${id}'})`
+  ));
+}
+
+function sendProviderResponse(ticketId){
+  fieldError("respFormError", "");
+  const t = TICKETS.find(x=>x.id===ticketId);
+  if(!t) return;
+  const txt = ((document.getElementById("responseText")||{}).value || "").trim();
+  if(txt.length < 10){
+    fieldError("respFormError", state.lang==='ar' ? 'يرجى كتابة رد لا يقل عن ١٠ أحرف.' : 'Please write a response of at least 10 characters.'); return;
+  }
+  delete DRAFTS[ticketId];
+  t.stage = Math.max(t.stage, 2);
+  addLog(t, 2,
+    "Provider response: " + txt,
+    "رد مقدم الرعاية: " + txt
+  );
+  t.updated = {en:"just now", ar:"الآن"};
+  openModal(confirmModal(
+    state.lang==='ar' ? 'تم إرسال الرد' : 'Response sent',
+    state.lang==='ar' ? 'انتقلت الحالة إلى مراجعة اللجنة الطبية.' : 'The case has moved to Medical Committee review.',
+    state.lang==='ar' ? 'العودة إلى صندوق الوارد' : 'Back to inbox',
+    `closeModal();go('provider','inbox')`
+  ));
+}
+function saveDraft(ticketId){
+  const txt = (document.getElementById("responseText")||{}).value || "";
+  if(txt.trim()){ DRAFTS[ticketId] = txt; } else { delete DRAFTS[ticketId]; }
+  openModal(confirmModal(
+    state.lang==='ar' ? 'تم حفظ المسودة' : 'Draft saved',
+    state.lang==='ar' ? 'يمكنك إكمال الرد لاحقاً من صندوق الوارد.' : 'You can finish this response later from the inbox.',
+    state.lang==='ar' ? 'حسناً' : 'OK',
+    `closeModal();go('provider','inbox')`
+  ));
+}
+
+function hospitalCommitteeModal(ticketId){
+  const t = TICKETS.find(x=>x.id===ticketId);
+  if(!t) return;
+  const ar = state.lang==='ar';
+  openModal(`
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2>${ar?'رأي اللجنة الطبية':'Medical Committee Opinion'}</h2>
+    <div class="sub">${ar?'لقضايا الأخطاء الطبية فقط — '+t.id : 'For Medical Error complaints only — '+t.id}</div>
+    <div class="consultant-row">
+      <div class="consultant-card"><b>${ar?'د. خالد المطيري':'Dr. Khalid Al-Mutairi'}</b>${ar?'الاستشاري الأول':'First Consultant'}<div class="scfhs">SCFHS 44210</div><div class="sign">${ar?'موقّع':'Signed'}</div></div>
+      <div class="consultant-card"><b>${ar?'د. نورة القحطاني':'Dr. Noura Al-Qahtani'}</b>${ar?'الاستشاري الثاني':'Second Consultant'}<div class="scfhs">SCFHS 51032</div><div class="sign">${ar?'موقّع':'Signed'}</div></div>
+      <div class="consultant-card"><b>${ar?'د. فهد العتيبي':'Dr. Fahad Al-Otaibi'}</b>${ar?'الاستشاري الثالث':'Third Consultant'}<div class="scfhs">SCFHS 39987</div><div class="sign">${ar?'موقّع':'Signed'}</div></div>
+    </div>
+    <label class="f">${ar?'ملاحظات اللجنة':'Committee notes'}</label>
+    <textarea class="f" id="committeeNotes" placeholder="${ar?'ملخص رأي اللجنة الطبية...':'Summary of the medical committee opinion...'}"></textarea>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="hospitalResolve('${t.id}')">${ar?'إغلاق الشكوى':'Close complaint'}</button>
+      <button class="btn btn-danger-o" style="flex:1;justify-content:center" onclick="hospitalEscalate('${t.id}')">${ar?'تصعيد لإدارة الالتزام':'Escalate to Commitment Admin'}</button>
+    </div>
+  `);
+}
+function hospitalDirectClose(ticketId){
+  const t = TICKETS.find(x=>x.id===ticketId);
+  if(!t) return;
+  t.stage = 3; t.status = "resolved"; t.path = "resolved";
+  addLog(t, t.stage,
+    "Ada'a Administration reviewed and closed the complaint directly (not a medical-error category).",
+    "راجعت إدارة الأداء الشكوى وأغلقتها مباشرة (ليست من فئة الخطأ الطبي)."
+  );
+  t.updated = {en:"just now", ar:"الآن"};
+  openModal(confirmModal(
+    state.lang==='ar' ? 'تم إغلاق الشكوى' : 'Complaint closed',
+    `${ticketId} — ${state.lang==='ar'?'أُغلقت من قِبل إدارة الأداء.':'closed by Ada\'a Administration.'}`,
+    state.lang==='ar' ? 'العودة للوحة التحكم' : 'Back to dashboard',
+    `closeModal();go('hospital','dashboard')`
+  ));
+}
+function hospitalResolve(ticketId){
+  const t = TICKETS.find(x=>x.id===ticketId);
+  if(!t) return;
+  const notes = (document.getElementById("committeeNotes")||{}).value || "";
+  t.stage = 3; t.status = "resolved"; t.path = "resolved";
+  addLog(t, 3,
+    "Medical Committee reviewed the case" + (notes?": "+notes:"") + ". No escalation required; complaint closed.",
+    "راجعت اللجنة الطبية الحالة" + (notes?": "+notes:"") + ". لا حاجة للتصعيد، تم إغلاق الشكوى."
+  );
+  t.updated = {en:"just now", ar:"الآن"};
+  closeModal();
+  openModal(confirmModal(
+    state.lang==='ar' ? 'تم إغلاق الشكوى' : 'Complaint closed',
+    `${ticketId} — ${state.lang==='ar'?'أُغلقت بعد مراجعة اللجنة الطبية.':'closed following medical committee review.'}`,
+    state.lang==='ar' ? 'العودة للوحة التحكم' : 'Back to dashboard',
+    `closeModal();go('hospital','dashboard')`
+  ));
+}
+function hospitalEscalate(ticketId){
+  const t = TICKETS.find(x=>x.id===ticketId);
+  if(!t) return;
+  const notes = (document.getElementById("committeeNotes")||{}).value || "";
+  t.stage = 4; t.status = "escalated"; t.path = "court";
+  addLog(t, 4,
+    "Ada'a Administration escalated the case to Commitment Administration" + (notes?": "+notes:"") + " for further investigation.",
+    "صعّدت إدارة الأداء الحالة إلى إدارة الالتزام" + (notes?": "+notes:"") + " لمزيد من التحقيق."
+  );
+  t.updated = {en:"just now", ar:"الآن"};
+  closeModal();
+  openModal(confirmModal(
+    state.lang==='ar' ? 'تم التصعيد' : 'Escalated',
+    `${ticketId} — ${state.lang==='ar'?'أُحيلت إلى إدارة الالتزام للتحقيق.':'referred to Commitment Administration for investigation.'}`,
+    state.lang==='ar' ? 'العودة للوحة التحكم' : 'Back to dashboard',
+    `closeModal();go('hospital','dashboard')`
+  ));
+}
+
+function commitmentClose(ticketId){
+  const t = TICKETS.find(x=>x.id===ticketId);
+  if(!t) return;
+  const notes = (document.getElementById("findingsText")||{}).value || "";
+  t.stage = 4; t.status = "resolved"; t.path = "resolved";
+  addLog(t, 4,
+    "Commitment Administration investigation concluded" + (notes?": "+notes:"") + ". Complaint closed, no further referral.",
+    "خلص تحقيق إدارة الالتزام" + (notes?": "+notes:"") + ". تم إغلاق الشكوى دون إحالة إضافية."
+  );
+  t.updated = {en:"just now", ar:"الآن"};
+  openModal(confirmModal(
+    state.lang==='ar' ? 'تم إغلاق الشكوى' : 'Complaint closed',
+    `${ticketId} — ${state.lang==='ar'?'أُغلقت بعد تحقيق إدارة الالتزام.':'closed following Commitment Administration investigation.'}`,
+    state.lang==='ar' ? 'العودة للقائمة' : 'Back to queue',
+    `closeModal();go('commitment','queue')`
+  ));
+}
+function commitmentEscalateCourt(ticketId){
+  const t = TICKETS.find(x=>x.id===ticketId);
+  if(!t) return;
+  const notes = (document.getElementById("findingsText")||{}).value || "";
+  t.stage = 5; t.status = "hearing"; t.path = "court";
+  addLog(t, 4,
+    "Commitment Administration referred the case to the Specialized Court" + (notes?": "+notes:"") + ".",
+    "أحالت إدارة الالتزام القضية إلى المحكمة المتخصصة" + (notes?": "+notes:"") + "."
+  );
+  addLog(t, 5,
+    "Case registered with the Specialized Health Court via Najiz.",
+    "تم تسجيل القضية لدى المحكمة الصحية المتخصصة عبر بوابة ناجز."
+  );
+  t.updated = {en:"just now", ar:"الآن"};
+  openModal(confirmModal(
+    state.lang==='ar' ? 'أُحيلت للمحكمة' : 'Referred to court',
+    `${ticketId} — ${state.lang==='ar'?'أُحيلت إلى المحكمة الصحية المتخصصة.':'referred to the Specialized Health Court.'}`,
+    state.lang==='ar' ? 'العودة للقائمة' : 'Back to queue',
+    `closeModal();go('commitment','queue')`
+  ));
+}
+
+function viewHearing(ticketId){
+  const t = TICKETS.find(x=>x.id===ticketId) || TICKETS.find(x=>x.path==='court');
+  const ar = state.lang==='ar';
+  openModal(`
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2>${ar?'موعد الجلسة':'Hearing Schedule'} <span class="mock-tag">${ar?'تجريبي':'Illustrative — mock integration'}</span></h2>
+    <div class="sub">${ltr(t.id)} · ${ar?'المحكمة الصحية المتخصصة — الرياض':'Specialized Health Court — Riyadh'}</div>
+    <div class="doc-row"><div class="dic">${icon("calendar")}</div><div>${ar?'التاريخ والوقت':'Date & time'}<br><b>${ar?'الأحد، ١٥ ذو القعدة — ١٠:٠٠ ص':'Sunday, session 10:00 AM'}</b></div></div>
+    <div class="doc-row"><div class="dic">${icon("link")}</div><div>${ar?'رقم الطلب في بوابة ناجز':'Ticket number in Najiz'}<br><b class="mono">702341</b></div></div>
+    <div class="doc-row"><div class="dic">${icon("pin")}</div><div>${ar?'رابط الجلسة':'Session link'}<br><b>najiz.sa/sessions/702341</b></div></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:10px" onclick="closeModal()">${ar?'حسناً':'Got it'}</button>
+  `);
+}
+
+function viewJudgementBrief(ticketId){
+  const t = TICKETS.find(x=>x.id===ticketId);
+  if(!t) return;
+  const ar = state.lang==='ar';
+  const briefLog = [...t.log].reverse().find(l=>l.stageIdx===6);
+  openModal(`
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2>${ar?'ملخص جلسة الحكم':'Brief of Judgement Session'} <span class="mock-tag">${ar?'تجريبي':'Illustrative — mock integration'}</span></h2>
+    <div class="sub">${ltr(t.id)} · ${ar?'المحكمة الصحية المتخصصة — الرياض':'Specialized Health Court — Riyadh'}</div>
+    <div class="doc-row"><div class="dic">${icon("doc")}</div><div>${ar?'ملخص الجلسة (رابط ناجز)':'Brief of Judgement Session (Najiz link)'}<br><b>najiz.sa/briefs/702341</b></div></div>
+    <div class="doc-row"><div class="dic">${icon("link")}</div><div>${ar?'رقم الطلب في بوابة ناجز':'Ticket number in Najiz'}<br><b class="mono">702341</b></div></div>
+    ${briefLog?`<div class="doc-row"><div class="dic">${icon("verify")}</div><div>${ar?'ملاحظات الجلسة':'Session notes'}<br><b>${escapeHtml(briefLog[state.lang])}</b></div></div>`:''}
+    <div class="sub" style="margin-top:8px">${ar?'الحالة الآن بانتظار صدور الحكم النهائي من المحكمة.':'The case is now awaiting the final judgement from the court.'}</div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:10px" onclick="closeModal()">${ar?'حسناً':'Got it'}</button>
+  `);
+}
+
+function viewFinalJudgement(ticketId){
+  const t = TICKETS.find(x=>x.id===ticketId);
+  if(!t) return;
+  const ar = state.lang==='ar';
+  const verdictLog = [...t.log].reverse().find(l=>l.stageIdx===7);
+  openModal(`
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2>${ar?'الحكم النهائي':'Final Judgement'} <span class="mock-tag">${ar?'تجريبي':'Illustrative — mock integration'}</span></h2>
+    <div class="sub">${ltr(t.id)} · ${ar?'المحكمة الصحية المتخصصة — الرياض':'Specialized Health Court — Riyadh'}</div>
+    <div class="doc-row"><div class="dic">${icon("doc")}</div><div>${ar?'رابط الحكم النهائي (بوابة ناجز)':'Link of final Judgement (Najiz link)'}<br><b>najiz.sa/judgements/702341</b></div></div>
+    <div class="doc-row"><div class="dic">${icon("link")}</div><div>${ar?'رقم الطلب في بوابة ناجز':'Ticket number in Najiz'}<br><b class="mono">702341</b></div></div>
+    ${verdictLog?`<div class="doc-row"><div class="dic">${icon("verify")}</div><div>${ar?'نص الحكم':'Verdict'}<br><b>${escapeHtml(verdictLog[state.lang])}</b></div></div>`:''}
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:10px" onclick="closeModal()">${ar?'حسناً':'Got it'}</button>
+  `);
+}
+
+function recordSessionBrief(ticketId){
+  const t = TICKETS.find(x=>x.id===ticketId);
+  if(!t) return;
+  const notes = (document.getElementById("sessionBriefText")||{}).value || "";
+  t.status = "judgeWait"; t.stage = 6;
+  addLog(t, 6,
+    "Hearing session held" + (notes?": "+notes:"") + ". Case now awaiting the court's final judgement.",
+    "عُقدت جلسة الاستماع" + (notes?": "+notes:"") + ". الحالة الآن بانتظار صدور الحكم النهائي."
+  );
+  t.updated = {en:"just now", ar:"الآن"};
+  openModal(confirmModal(
+    state.lang==='ar' ? 'تم تسجيل ملخص الجلسة' : 'Session brief recorded',
+    `${ticketId} — ${state.lang==='ar'?'الحالة الآن بانتظار الحكم النهائي.':'now awaiting final judgement.'}`,
+    state.lang==='ar' ? 'العودة للقائمة' : 'Back to queue',
+    `closeModal();go('commitment','queue')`
+  ));
+}
+
+function recordFinalJudgement(ticketId){
+  const t = TICKETS.find(x=>x.id===ticketId);
+  if(!t) return;
+  const ar = state.lang==='ar';
+  const verdict = (document.getElementById("judgementVerdict")||{}).value || "upheld";
+  const notes = (document.getElementById("judgementText")||{}).value || "";
+  const verdictText = {
+    en:{upheld:"in favor of the complaint", dismissed:"dismissing the complaint", settled:"ordering a settlement between the parties"},
+    ar:{upheld:"لصالح الشكوى", dismissed:"برفض الشكوى", settled:"بتقرير تسوية بين الطرفين"}
+  };
+  t.stage = 7; t.status = "judgement";
+  addLog(t, 7,
+    "Specialized Court issued its final judgement, " + verdictText.en[verdict] + (notes?": "+notes:"") + ".",
+    "أصدرت المحكمة المتخصصة حكمها النهائي، " + verdictText.ar[verdict] + (notes?": "+notes:"") + "."
+  );
+  t.updated = {en:"just now", ar:"الآن"};
+  openModal(confirmModal(
+    ar ? 'صدر الحكم النهائي' : 'Final judgement issued',
+    `${ticketId} — ${ar?'الحالة الآن مغلقة بحكم نهائي من المحكمة.':'now closed with a final court judgement.'}`,
+    ar ? 'العودة للقائمة' : 'Back to queue',
+    `closeModal();go('commitment','queue')`
+  ));
+}
+
+function confirmModal(title, body, btnLabel, btnOnclick){
+  return `
+    <div class="confirm-icon">✓</div>
+    <h2>${title}</h2>
+    <div class="sub">${body}</div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px" onclick="${btnOnclick}">${btnLabel}</button>
+  `;
+}
+
+/* ---------------------------------------------------------
+   Agency / Guarantor flow
+--------------------------------------------------------- */
+let DRAFTS = {};
+let AGENCY = {
+  status:"verified",
+  office:{en:"Al Rowad Medical Recruitment",ar:"مكتب الروّاد للاستقدام الطبي"},
+  guarantor:{en:"Mohammed Al-Otaibi",ar:"محمد العتيبي"}, guarantorId:"1098765432",
+  witness1:{en:"Yousef Al-Harbi",ar:"يوسف الحربي"}, witness1Id:"1076543210",
+  witness2:{en:"Tariq Al-Zahrani",ar:"طارق الزهراني"}, witness2Id:"1065432109",
+};
+
+function viewGuarantorDocs(){
+  const ar = state.lang==='ar';
+  openModal(`
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2>${ar?'مستندات الوكالة والكفالة':'Agency & Guarantor Documents'} <span class="mock-tag">${ar?'تجريبي':'Illustrative — mock integration'}</span></h2>
+    <div class="sub">${escapeHtml(ar?AGENCY.office.ar:AGENCY.office.en)}</div>
+    <div class="doc-row"><div class="dic">${icon("person")}</div><div>${ar?'الكفيل الغارم':'Guarantor'}<br><b>${escapeHtml(ar?AGENCY.guarantor.ar:AGENCY.guarantor.en)}</b> · <span class="mono">${ltr(escapeHtml(AGENCY.guarantorId))}</span></div></div>
+    <div class="doc-row"><div class="dic">${icon("person")}</div><div>${ar?'الشاهد الأول':'Witness 1'}<br><b>${escapeHtml(ar?AGENCY.witness1.ar:AGENCY.witness1.en)}</b> · <span class="mono">${ltr(escapeHtml(AGENCY.witness1Id))}</span></div></div>
+    <div class="doc-row"><div class="dic">${icon("person")}</div><div>${ar?'الشاهد الثاني':'Witness 2'}<br><b>${escapeHtml(ar?AGENCY.witness2.ar:AGENCY.witness2.en)}</b> · <span class="mono">${ltr(escapeHtml(AGENCY.witness2Id))}</span></div></div>
+    <div class="doc-row"><div class="dic">${icon("doc")}</div><div>${ar?'صك الوكالة (ناجز)':'Power of Attorney (Najiz)'}<br><b>${ar?'موثّق رقمياً':'Digitally notarized'}</b></div></div>
+    <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:8px" onclick="closeModal()">${ar?'إغلاق':'Close'}</button>
+  `);
+}
+
+function openAgencyForm(){
+  const ar = state.lang==='ar';
+  openModal(`
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2>${ar?'تقديم ترتيب وكالة جديد':'Submit New Agency Arrangement'}</h2>
+    <div class="sub">${ar?'يتيح هذا للممارس الصحي تعيين وكيل قانوني لمتابعة الإجراءات نيابة عنه.':'Lets the provider appoint a legal agent to continue proceedings on their behalf.'}</div>
+    <label class="f">${ar?'مكتب الاستقدام / الوكالة':'Recruitment / Agency office'}</label>
+    <input class="f" id="agOffice" placeholder="${ar?'اسم المكتب':'Office name'}">
+    <div class="two-col-form">
+      <div><label class="f">${ar?'اسم الكفيل الغارم':"Guarantor's full name"}</label><input class="f" id="agGuarantor" placeholder="${ar?'الاسم الرباعي':'Full name'}"></div>
+      <div><label class="f">${ar?'رقم الهوية / الإقامة':'National ID / Residency'}</label><input class="f" id="agGuarantorId" placeholder="10XXXXXXXX"></div>
+      <div><label class="f">${ar?'اسم الشاهد الأول':'Witness 1 name'}</label><input class="f" id="agW1"></div>
+      <div><label class="f">${ar?'رقم هوية الشاهد الأول':'Witness 1 ID'}</label><input class="f" id="agW1Id"></div>
+      <div><label class="f">${ar?'اسم الشاهد الثاني':'Witness 2 name'}</label><input class="f" id="agW2"></div>
+      <div><label class="f">${ar?'رقم هوية الشاهد الثاني':'Witness 2 ID'}</label><input class="f" id="agW2Id"></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px" onclick="submitAgency()">${ar?'إرسال للمراجعة':'Submit for review'}</button>
+  `);
+}
+function submitAgency(){
+  const ar = state.lang==='ar';
+  const v = id => (document.getElementById(id)||{}).value || "";
+  const office = v("agOffice") || AGENCY.office.en;
+  const guarantor = v("agGuarantor") || AGENCY.guarantor.en;
+  const guarantorId = v("agGuarantorId") || AGENCY.guarantorId;
+  AGENCY = {
+    status:"pending",
+    office:{en:office, ar:office},
+    guarantor:{en:guarantor, ar:guarantor}, guarantorId,
+    witness1:{en:v("agW1")||AGENCY.witness1.en, ar:v("agW1")||AGENCY.witness1.en}, witness1Id:v("agW1Id")||AGENCY.witness1Id,
+    witness2:{en:v("agW2")||AGENCY.witness2.en, ar:v("agW2")||AGENCY.witness2.en}, witness2Id:v("agW2Id")||AGENCY.witness2Id,
+  };
+  openModal(confirmModal(
+    ar?'تم إرسال طلب الوكالة':'Agency request submitted',
+    ar?'ستتم مراجعته من قِبل مسؤول الالتزام خلال يومي عمل.':'A compliance officer will confirm it within 2 business days.',
+    ar?'حسناً':'OK',
+    `closeModal();go('provider','verify')`
+  ));
+}
+
+
+/* ---------------------------------------------------------
+   Small helpers
+--------------------------------------------------------- */
+function S(){ return UI[state.lang]; }
+function ltr(txt){ return `<span dir="ltr">${txt}</span>`; }
+function escapeHtml(str){
+  return String(str==null?"":str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function handleFileSelect(input, listId){
+  const list = document.getElementById(listId);
+  if(!list) return;
+  const files = Array.from(input.files||[]);
+  list.innerHTML = files.map((f,i)=>`
+    <div class="attach-row">
+      ${icon("doc")}
+      <span class="attach-name">${escapeHtml(f.name)}</span>
+      <span class="attach-size">${f.size > 1024*1024 ? (f.size/1024/1024).toFixed(1)+" MB" : Math.max(1,Math.round(f.size/1024))+" KB"}</span>
+      <button type="button" class="attach-remove" onclick="removeAttach('${input.id}','${listId}',${i})">✕</button>
+    </div>`).join("");
+}
+function removeAttach(inputId, listId, idx){
+  const input = document.getElementById(inputId);
+  if(!input) return;
+  const dt = new DataTransfer();
+  Array.from(input.files).forEach((f,i)=>{ if(i!==idx) dt.items.add(f); });
+  input.files = dt.files;
+  handleFileSelect(input, listId);
+}
+function fieldError(elId, msg){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  el.innerHTML = msg ? `<span>⚠</span> ${escapeHtml(msg)}` : "";
+}
+
+function searchProviderRegistry(){
+  const ar = state.lang==='ar';
+  const raw = ((document.getElementById("registrySearchInput")||{}).value || "").trim();
+  const result = document.getElementById("registryResult");
+  if(!result) return;
+  if(!raw){
+    result.innerHTML = `<p class="field-error" style="margin-top:10px"><span>⚠</span> ${ar?'يرجى إدخال رقم الهوية أو رقم التسجيل.':'Please enter a national ID or registration number.'}</p>`;
+    return;
+  }
+  const q = escapeHtml(raw);
+  const hit = PROVIDER_REGISTRY.find(p => p.nid === raw || p.scfhs === raw || p.nid.includes(raw) || p.scfhs.includes(raw));
+  if(!hit){
+    result.innerHTML = `<p class="field-error" style="margin-top:10px"><span>⚠</span> ${ar?`لا توجد نتائج مطابقة لـ "${q}".`:`No provider found matching "${q}".`}</p>`;
+    return;
+  }
+  const statusLabel = hit.status==='active' ? (ar?'نشط':'Active') : (ar?'في إجازة':'On leave');
+  result.innerHTML = `
+    <div class="doc-row" style="margin-top:12px">${icon("person")}<div>
+      <b>${escapeHtml(ar?hit.name.ar:hit.name.en)}</b> · <span class="mono">${ltr("SCFHS "+hit.scfhs)}</span><br>
+      <span style="color:var(--ink-2)">${escapeHtml(ar?hit.dept.ar:hit.dept.en)} — ${HOSP[hit.hospKey][state.lang]}</span><br>
+      <span class="mock-tag" style="border-color:${hit.status==='active'?'var(--success)':'var(--warning)'};color:${hit.status==='active'?'var(--success)':'var(--warning)'}">${statusLabel}</span>
+    </div></div>`;
+}
+
+function icon(name){
+  const icons = {
+    dashboard:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',
+    file:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>',
+    track:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>',
+    inbox:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h5l2 3h4l2-3h5"/><path d="M5 5h14l2 7v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6z"/></svg>',
+    respond:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4A8.5 8.5 0 1 1 21 11.5Z"/><path d="M8 12h8M8 8h5"/></svg>',
+    verify:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 5v6c0 5 3.5 8.5 8 11 4.5-2.5 8-6 8-11V5z"/><path d="m9 12 2 2 4-4"/></svg>',
+    review:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h7"/></svg>',
+    queue:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>',
+    decision:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M5 7l-2 5a3.5 3.5 0 0 0 7 0zM19 7l-2 5a3.5 3.5 0 0 0 7 0z"/><path d="M5 7h14"/></svg>',
+    /* roles */
+    patient:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>',
+    provider:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12h-3l-2 5-4-10-2 5H6"/><circle cx="12" cy="12" r="10"/></svg>',
+    hospital:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="1.5"/><path d="M12 8v6M9 11h6"/><path d="M9 21v-4h6v4"/></svg>',
+    commitment:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M5 7l-2 5a3.5 3.5 0 0 0 7 0zM19 7l-2 5a3.5 3.5 0 0 0 7 0z"/><path d="M5 7h14M9 21h6"/></svg>',
+    ministry:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10 12 4l9 6"/><path d="M5 10v10M10 10v10M14 10v10M19 10v10"/><path d="M3 20h18"/></svg>',
+    cluster:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 20V10l6-4 6 4v10"/><path d="M15 20v-6l6-3v9"/><path d="M9 20v-5M3 20h18"/></svg>',
+    /* complaint categories */
+    emergency:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>',
+    error:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>',
+    mistreat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 20 5v6c0 6-4 9-8 11-4-2-8-5-8-11V5Z"/></svg>',
+    medication:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="9" width="18" height="6" rx="3" transform="rotate(-45 12 12)"/><path d="m8.5 15.5 7-7" stroke-width="2"/></svg>',
+    general:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="1.5"/><path d="M12 8v6M9 11h6"/></svg>',
+    private:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V9l8-6 8 6v12"/><path d="M9 21v-6h6v6"/></svg>',
+    /* document / modal icons */
+    person:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>',
+    doc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l5 5v15H6Z"/><path d="M15 2v5h5"/></svg>',
+    calendar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+    link:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1.5-1.5"/></svg>',
+    pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg>',
+    upload:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>',
+    logomark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3 4 6.5v5c0 5 3.4 8.2 8 9.5 4.6-1.3 8-4.5 8-9.5v-5Z"/><path d="m9 12 2 2 4-4"/></svg>',
+  };
+  return icons[name]||icons.dashboard;
+}
+
+function badge(code){
+  const st = STATUS[code];
+  return `<span class="badge b-${st.cls}">${st[state.lang]}</span>`;
+}
+
+// Traffic-light KPI status per hospital, per client's own framing on the call:
+// green = accomplishing their work, red = not accomplished.
+function perfStatus(h){
+  const rate = h.resolved / h.complaints * 100;
+  if(rate >= 65 && h.avgDays <= 8) return {cls:'green', label:{en:'On track', ar:'ضمن المستهدف'}};
+  if(rate >= 50 && h.avgDays <= 10) return {cls:'amber', label:{en:'Needs attention', ar:'يحتاج متابعة'}};
+  return {cls:'red', label:{en:'Below target', ar:'دون المستهدف'}};
+}
+function kpiDot(h){
+  const s = perfStatus(h);
+  return `<span class="kpi-dot kpi-dot-${s.cls}" title="${s.label[state.lang]}"></span>`;
+}
+
+function railHTML(currentStage, path){
+  const names = STAGES[state.lang];
+  return `<div class="rail">` + names.map((s,i)=>{
+    let cls = i < currentStage ? "done" : i===currentStage ? "current" : "";
+    return `<div class="rail-step ${cls}" style="${path==='resolved'&&i>currentStage?'opacity:.35':''}">
+      <div class="line"></div>
+      <div class="dot">${i<currentStage?'✓':i+1}</div>
+      <div class="txt">${s}</div>
+    </div>`;
+  }).join("") + `</div>`;
+}
+
+function topRight(){
+  const s = S();
+  document.getElementById("brandTag").textContent = s.brandTag;
+  document.getElementById("brandMark").innerHTML = s.brandMark;
+  const langToggle = `
+    <div class="lang-toggle">
+      <button class="${state.lang==='en'?'on':''}" onclick="setLang('en')">EN</button>
+      <button class="${state.lang==='ar'?'on':''} ar" onclick="setLang('ar')">عربي</button>
+    </div>`;
+  if(!state.role){
+    document.getElementById("topRight").innerHTML = langToggle;
+    return;
+  }
+  const opts = Object.entries(ROLES).map(([k,v])=>`<option value="${k}" ${k===state.role?'selected':''}>${v[state.lang].label}</option>`).join("");
+  document.getElementById("topRight").innerHTML = `
+    ${langToggle}
+    <span class="stage-chip">${s.protoBadge}</span>
+    <div class="role-switch">
+      <span style="font-size:12px;color:#B9CFC6">${s.viewingAs}</span>
+      <select onchange="go(this.value, ROLES[this.value].stages[0])">${opts}</select>
+    </div>
+    <button class="exit-btn" onclick="go(null,null)">${s.exitBtn}</button>
+  `;
+}
+
+/* ---------------------------------------------------------
+   Sidebar
+--------------------------------------------------------- */
+function sidebarHTML(){
+  const s = S();
+  const r = ROLES[state.role];
+  const items = {
+    patient:[["dashboard","dashboard"],["file","file"],["track","track"]],
+    provider:[["inbox","inbox"],["respond","respond"],["verify","verify"]],
+    hospital:[["dashboard","dashboard"],["review","review"]],
+    commitment:[["queue","queue"],["decision","decision"]],
+    cluster:[["dashboard","dashboard"]],
+    ministry:[["dashboard","dashboard"]],
+  }[state.role];
+
+  return `<div class="sidebar">
+    <div class="side-role">
+      <div class="ic">${icon(r.icon)}</div>
+      <div class="lbl"><b>${r[state.lang].label}</b></div>
+    </div>
+    ${items.map(([scr,navKey])=>`
+      <div class="nav-item ${state.screen===scr?'active':''}" onclick="go('${state.role}','${scr}')">
+        ${icon(navKey)}<span>${s.nav[navKey]}</span>
+      </div>`).join("")}
+  </div>`;
+}
+
+/* ---------------------------------------------------------
+   Landing screen
+--------------------------------------------------------- */
+function renderLanding(){
+  const s = S();
+  const order = ['patient','provider','hospital','commitment','cluster','ministry'];
+  const n = order.length;
+  const svgW = 960, svgH = 150, pad = 70;
+  const step = (svgW - pad*2) / (n-1);
+  const cy = 62;
+  const nodeHtml = order.map((k,i)=>{
+    const x = pad + i*step;
+    const v = ROLES[k];
+    return `
+      <g>
+        <circle cx="${x}" cy="${cy}" r="22" fill="${i===0?'var(--gold)':'var(--primary)'}" opacity="${0.55 + (i/(n-1))*0.45}"/>
+        <text x="${x}" y="${cy+5}" text-anchor="middle" font-size="13" font-weight="700" fill="#fff" font-family="inherit">${i+1}</text>
+        <text x="${x}" y="${cy+42}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink-soft)" font-family="inherit">${v[state.lang].label}</text>
+      </g>`;
+  }).join("");
+  const pathD = order.map((_,i)=> (pad+i*step) + "," + cy).join(" L ");
+  return `<div class="landing">
+    <div class="landing-head">
+      <div class="eyebrow">${s.landing.eyebrow}</div>
+      <h1>${s.landing.title}</h1>
+      <p>${s.landing.sub}</p>
+    </div>
+    <div class="hero-illustration" role="img" aria-label="${state.lang==='ar'?'رسم توضيحي لمسار البلاغ الواحد عبر جميع الأطراف':'Illustration of one ticket journey across all stakeholders'}">
+      <svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;max-width:760px;display:block;margin:0 auto">
+        <path d="M ${pathD}" fill="none" stroke="var(--line)" stroke-width="2" stroke-dasharray="1 7" stroke-linecap="round"/>
+        <g class="hero-ticket">
+          <rect x="${pad + step*1.5 - 26}" y="${cy-44}" width="52" height="22" rx="11" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.5"/>
+          <text x="${pad + step*1.5}" y="${cy-29}" text-anchor="middle" font-size="9.5" font-weight="700" fill="var(--gold)" font-family="inherit">HC-88231</text>
+        </g>
+        ${nodeHtml}
+      </svg>
+    </div>
+    <div class="role-grid">
+      ${Object.entries(ROLES).map(([k,v])=>`
+        <button class="role-card" onclick="go('${k}', ROLES['${k}'].stages[0])">
+          <div class="ic">${icon(v.icon)}</div>
+          <h3>${v[state.lang].label}</h3>
+          <p>${v[state.lang].desc}</p>
+          <div class="go">${s.landing.open} ${state.lang==='ar'?'←':'→'}</div>
+        </button>`).join("")}
+    </div>
+  </div>`;
+}
+
+/* ---------------------------------------------------------
+   Patient screens
+--------------------------------------------------------- */
+function renderPatientDashboard(){
+  const s = S(); const p = s.patientDash; const c = s.col;
+  return `
+    <div class="page-head">
+      <div><h1>${p.welcome}</h1><div class="sub">${p.sub}</div></div>
+      <button class="btn btn-primary" onclick="go('patient','file')">${icon('file')} ${p.newComplaint}</button>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi"><div class="n">1</div><div class="l">${p.kOpen}</div></div>
+      <div class="kpi"><div class="n">1</div><div class="l">${p.kCourt}</div></div>
+      <div class="kpi"><div class="n">1</div><div class="l">${p.kResolved}</div></div>
+      <div class="kpi"><div class="n">3</div><div class="l">${p.kTotal}</div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>${p.my}</h3><span class="muted">${p.tap}</span></div>
+      <table><thead><tr><th>${c.ticket}</th><th>${c.category}</th><th>${c.hospital}</th><th>${c.status}</th><th>${c.updated}</th></tr></thead>
+      <tbody>
+      ${TICKETS.map(t=>`
+        <tr class="rowlink" onclick="go('patient','track',{ticket:'${t.id}'})">
+          <td class="ticket">${ltr(t.id)}</td><td>${CATS[t.catKey][state.lang].t}</td><td>${HOSP[t.hospKey][state.lang]}</td>
+          <td>${badge(t.status)}</td><td>${t.updated[state.lang]}</td>
+        </tr>`).join("")}
+      </tbody></table>
+    </div>`;
+}
+
+function renderPatientFile(){
+  const s = S(); const p = s.patientFile;
+  const sel = state.cat;
+  return `
+    <div class="page-head"><div><h1>${p.title}</h1><div class="sub">${p.sub}</div></div></div>
+    <label class="f">${p.step1}</label>
+    <div class="cat-grid">
+      ${Object.entries(CATS).map(([k,c])=>`
+        <button class="cat-card ${sel===k?'sel':''}" onclick="state.cat='${k}';render()">
+          <span class="ic">${icon(c.ic)}</span><b>${c[state.lang].t}</b><span>${c[state.lang].d}</span>
+        </button>`).join("")}
+    </div>
+    <div class="card card-pad">
+      <label class="f" style="margin-top:0">${p.hospitalLbl}</label>
+      <select class="f" id="fileHospital">${Object.entries(HOSP).map(([k,h])=>`<option value="${k}">${h[state.lang]}</option>`).join("")}</select>
+      <label class="f">${p.dateLbl}</label>
+      <input class="f" type="date" id="fileIncidentDate" max="${new Date().toISOString().split('T')[0]}">
+      <label class="f">${p.describeLbl}</label>
+      <textarea class="f" id="fileDesc" placeholder="${p.describePh}"></textarea>
+      <label class="f">${p.attachLbl}</label>
+      <div class="dropzone" style="border:1.5px dashed var(--line);border-radius:10px;padding:18px;text-align:center;color:var(--ink-soft);font-size:13px" onclick="document.getElementById('fileAttachInput').click()">
+        <input type="file" id="fileAttachInput" multiple style="display:none" onchange="handleFileSelect(this,'fileAttachList')">
+        <div class="upload-ic" style="width:22px;height:22px;margin:0 auto 6px;opacity:.6">${icon("upload")}</div>${p.attachPh}
+      </div>
+      <div id="fileAttachList" class="attach-list"></div>
+      <div id="fileFormError" class="field-error"></div>
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button class="btn btn-primary" onclick="submitComplaint()">${p.submit}</button>
+        <button class="btn btn-ghost" onclick="state.cat=null;go('patient','dashboard')">${p.cancel}</button>
+      </div>
+    </div>`;
+}
+
+function renderPatientTrack(){
+  const s = S(); const p = s.patientTrack; const c = s.col;
+  if(!state.ticket){
+    return `
+    <div class="page-head"><div><h1>${p.title}</h1><div class="sub">${p.sub}</div></div></div>
+    <div class="card"><table><thead><tr><th>${c.ticket}</th><th>${c.category}</th><th>${c.status}</th><th>${c.updated}</th></tr></thead>
+    <tbody>${TICKETS.map(t=>`
+      <tr class="rowlink" onclick="go('patient','track',{ticket:'${t.id}'})">
+        <td class="ticket">${ltr(t.id)}</td><td>${CATS[t.catKey][state.lang].t}</td><td>${badge(t.status)}</td><td>${t.updated[state.lang]}</td>
+      </tr>`).join("")}</tbody></table></div>`;
+  }
+  return ticketDetail("patient");
+}
+
+/* ---------------------------------------------------------
+   Shared ticket detail
+--------------------------------------------------------- */
+function ticketDetail(role){
+  const s = S(); const td = s.ticketDetail;
+  const t = TICKETS.find(x=>x.id===state.ticket) || TICKETS[0];
+  const actions = {
+    patient: (() => {
+      if(t.status==='judgement') return `<button class="btn btn-ghost" onclick="viewFinalJudgement('${t.id}')">${td.viewJudgement}</button>`;
+      if(t.status==='judgeWait') return `<button class="btn btn-ghost" onclick="viewJudgementBrief('${t.id}')">${td.viewJudgementBrief}</button>`;
+      if(t.status==='hearing') return `<button class="btn btn-ghost" onclick="viewHearing('${t.id}')">${td.viewHearing}</button>`;
+      if(t.status==='resolved') return `<button class="btn btn-ghost" disabled>${td.closed}</button>`;
+      return '';
+    })(),
+    provider: `<button class="btn btn-primary" onclick="go('provider','respond',{ticket:'${t.id}'})">${td.openResponse}</button>`,
+    hospital: t.status==='resolved' ? `<button class="btn btn-ghost" disabled>${td.closed}</button>` :
+      (t.catKey==='error'
+        ? `<button class="btn btn-gold" onclick="hospitalCommitteeModal('${t.id}')">${td.consultCommittee}</button>
+           <button class="btn btn-danger-o" onclick="hospitalEscalate('${t.id}')">${td.escalate}</button>`
+        : `<button class="btn btn-ghost" onclick="hospitalDirectClose('${t.id}')">${td.directClose}</button>
+           <button class="btn btn-danger-o" onclick="hospitalEscalate('${t.id}')">${td.escalate}</button>`),
+    commitment: (() => {
+      if(t.status==='judgement') return `<button class="btn btn-ghost" disabled>${td.closed}</button>`;
+      const lbl = t.status==='judgeWait' ? td.recordJudgement : t.status==='hearing' ? td.recordSession : td.openInvestigation;
+      return `<button class="btn btn-primary" onclick="go('commitment','decision',{ticket:'${t.id}'})">${lbl}</button>`;
+    })(),
+  }[role] || "";
+
+  const backMap = {patient:"track", provider:"inbox", hospital:"dashboard", commitment:"queue"};
+  const stages = STAGES[state.lang];
+  return `
+    <div class="breadcrumb"><b onclick="go('${role}','${backMap[role]}',{ticket:null})">← ${td.back}</b></div>
+    <div class="page-head">
+      <div>
+        <h1 class="ticket" style="font-size:20px">${ltr(t.id)}</h1>
+        <div class="sub">${CATS[t.catKey][state.lang].t} · ${HOSP[t.hospKey][state.lang]} · ${td.filedBy} ${t.patient[state.lang]}</div>
+      </div>
+      <div style="display:flex;gap:8px">${badge(t.status)} ${actions}</div>
+    </div>
+    <div class="card" style="margin-bottom:18px">
+      <div class="card-head"><h3>${td.journey}</h3><span class="muted">${td.stageOf(t.stage+1, stages.length)}</span></div>
+      <div class="card-pad">${railHTML(t.stage, t.path)}</div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><h3>${td.timeline}</h3></div>
+        <div class="card-pad timeline">
+          ${t.log.map(l=>`
+            <div class="tl-item"><div class="dot2"></div>
+              <div class="body">
+                <div class="meta">${ltr(l.m)}</div>
+                <div class="head">${stages[l.stageIdx]}</div>
+                <div class="txt">${escapeHtml(l[state.lang])}</div>
+              </div>
+            </div>`).join("")}
+        </div>
+      </div>
+      <div class="card card-pad" style="height:fit-content">
+        <h3 style="margin-top:0;font-size:14px">${td.summary}</h3>
+        <div class="chip">${td.ticketLbl} ${ltr(t.id)}</div><br>
+        <div style="font-size:13px;color:var(--ink-soft);line-height:2;margin-top:10px">
+          ${td.patientLbl} <b style="color:var(--ink)">${t.patient[state.lang]}</b><br>
+          ${td.providerLbl} <b style="color:var(--ink)">${HOSP[t.hospKey][state.lang]}</b><br>
+          ${td.categoryLbl} <b style="color:var(--ink)">${CATS[t.catKey][state.lang].t}</b><br>
+          ${td.currentLbl} <b style="color:var(--ink)">${stages[t.stage]}</b>
+        </div>
+        <div class="divider"></div>
+        <div style="font-size:12px;color:var(--ink-soft)">${td.footnote}</div>
+      </div>
+    </div>`;
+}
+
+/* ---------------------------------------------------------
+   Healthcare Provider screens
+--------------------------------------------------------- */
+function renderProviderInbox(){
+  const s = S(); const p = s.providerInbox; const c = s.col;
+  return `
+    <div class="page-head"><div><h1>${p.title}</h1><div class="sub">${p.sub}</div></div></div>
+    <div class="kpi-row">
+      <div class="kpi"><div class="n">1</div><div class="l">${p.kAwait}</div></div>
+      <div class="kpi"><div class="n">1</div><div class="l">${p.kCourt}</div></div>
+      <div class="kpi"><div class="n">1</div><div class="l">${p.kClosed}</div></div>
+      <div class="kpi"><div class="n">${ltr("4.2d")}</div><div class="l">${p.kAvg}</div></div>
+    </div>
+    <div class="card"><div class="card-head"><h3>${p.assigned}</h3></div>
+    <table><thead><tr><th>${c.ticket}</th><th>${c.category}</th><th>${c.patient}</th><th>${c.status}</th></tr></thead>
+    <tbody>${TICKETS.map(t=>`
+      <tr class="rowlink" onclick="go('provider','respond',{ticket:'${t.id}'})">
+        <td class="ticket">${ltr(t.id)}</td><td>${CATS[t.catKey][state.lang].t}</td><td>${t.patient[state.lang]}</td><td>${badge(t.status)}${DRAFTS[t.id]?`<span class="mock-tag" style="color:var(--gold);border-color:var(--gold)">${state.lang==='ar'?'مسودة محفوظة':'Draft saved'}</span>`:''}</td>
+      </tr>`).join("")}</tbody></table></div>`;
+}
+
+function renderProviderRespond(){
+  const s = S(); const p = s.providerRespond;
+  if(!state.ticket) return ticketDetail("provider");
+  const t = TICKETS.find(x=>x.id===state.ticket)||TICKETS[0];
+  return `
+    <div class="breadcrumb"><b onclick="go('provider','inbox',{ticket:null})">← ${p.back}</b></div>
+    <div class="page-head"><div><h1>${p.respondTo(t.id)}</h1><div class="sub">${CATS[t.catKey][state.lang].t} · ${HOSP[t.hospKey][state.lang]}</div></div>${badge(t.status)}</div>
+    <div class="grid2">
+      <div class="card card-pad">
+        <h3 style="margin-top:0;font-size:14px">${p.patientComplaint}</h3>
+        <div class="tl-item"><div class="dot2"></div><div class="body"><div class="txt">${escapeHtml(t.log[0][state.lang])}</div></div></div>
+        <label class="f">${p.yourResponse}</label>
+        <textarea class="f" id="responseText" placeholder="${p.yourResponsePh}">${escapeHtml(DRAFTS[t.id]||"")}</textarea>
+        <label class="f">${p.attachClinical}</label>
+        <div class="dropzone" style="border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;color:var(--ink-soft);font-size:13px" onclick="document.getElementById('respAttachInput').click()">
+          <input type="file" id="respAttachInput" multiple style="display:none" onchange="handleFileSelect(this,'respAttachList')">
+          <div class="upload-ic" style="width:20px;height:20px;margin:0 auto 6px;opacity:.6">${icon("upload")}</div>${p.attachPh}
+        </div>
+        <div id="respAttachList" class="attach-list"></div>
+        <div id="respFormError" class="field-error"></div>
+        <div style="display:flex;gap:10px;margin-top:18px">
+          <button class="btn btn-primary" onclick="sendProviderResponse('${t.id}')">${p.send}</button>
+          <button class="btn btn-ghost" onclick="saveDraft('${t.id}')">${p.saveDraft}</button>
+        </div>
+      </div>
+      <div class="card card-pad" style="height:fit-content">
+        <h3 style="margin-top:0;font-size:14px">${p.caseJourney}</h3>
+        ${railHTML(t.stage,t.path)}
+        <div class="divider"></div>
+        <div style="font-size:12px;color:var(--ink-soft)">${p.routeNote}</div>
+      </div>
+    </div>`;
+}
+
+function renderProviderVerify(){
+  const s = S(); const p = s.providerVerify;
+  const ar = state.lang==='ar';
+  const statusBadge = AGENCY.status==='pending' ? badge("open") : badge("resolved");
+  return `
+    <div class="page-head"><div><h1>${p.title}</h1><div class="sub">${p.sub}</div></div></div>
+    <div class="grid2">
+      <div class="card card-pad">
+        <h3 style="margin-top:0;font-size:14px">${p.profVerify}</h3>
+        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line)"><span>${p.license}</span>${badge("resolved")}</div>
+        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line)"><span>${p.insurance}</span>${badge("resolved")}</div>
+        <div style="display:flex;justify-content:space-between;padding:10px 0"><span>${p.reverify}</span>${badge("open")}</div>
+      </div>
+      <div class="card card-pad">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <h3 style="margin-top:0;font-size:14px">${p.expat}</h3>${statusBadge}
+        </div>
+        <div style="font-size:13px;color:var(--ink-soft);line-height:1.9">
+          ${p.agency} <b style="color:var(--ink)">${escapeHtml(ar?AGENCY.office.ar:AGENCY.office.en)}</b><br>
+          ${p.witness} <b style="color:var(--ink)">${escapeHtml(ar?AGENCY.witness1.ar:AGENCY.witness1.en)}, ${escapeHtml(ar?AGENCY.witness2.ar:AGENCY.witness2.en)}</b><br>
+          ${p.guarantor} <b style="color:var(--ink)">${escapeHtml(ar?AGENCY.guarantor.ar:AGENCY.guarantor.en)}</b>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px">
+          <button class="btn btn-ghost" onclick="viewGuarantorDocs()">${p.viewGuarantor}</button>
+          <button class="btn btn-primary" onclick="openAgencyForm()">${ar?'تقديم ترتيب جديد':'Submit new arrangement'}</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ---------------------------------------------------------
+   Ada'a Administration screens
+--------------------------------------------------------- */
+function renderHospitalDashboard(){
+  const s = S(); const p = s.hospitalDash; const c = s.col;
+  const myHosp = "kfgh";
+  const baseline = HOSPITALS.find(h=>h.key===myHosp);
+  const myTickets = TICKETS.filter(t=>t.hospKey===myHosp);
+  const liveTotal = baseline.complaints + myTickets.length;
+  const liveNote = myTickets.length ? `<div class="muted" style="font-size:11px;margin-top:2px">${state.lang==='ar'?`+ ${myTickets.length} في هذه الجلسة`:`+ ${myTickets.length} this session`}</div>` : '';
+  return `
+    <div class="page-head"><div><h1>${p.title}</h1><div class="sub">${p.sub}</div></div></div>
+    <div class="kpi-row">
+      <div class="kpi"><div class="n">${liveTotal}</div><div class="l">${p.kYtd}</div><div class="trend up">${p.t1}</div>${liveNote}</div>
+      <div class="kpi"><div class="n">${ltr("6.2d")}</div><div class="l">${p.kAvgRes}</div><div class="trend down">${p.t2}</div></div>
+      <div class="kpi"><div class="n">12%</div><div class="l">${p.kEsc}</div><div class="trend down">${p.t3}</div></div>
+      <div class="kpi"><div class="n">91</div><div class="l">${p.kResolvedQ}</div><div class="trend up">${p.t4}</div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>${p.queue}</h3><span class="muted">${p.tap}</span></div>
+      <table><thead><tr><th>${c.ticket}</th><th>${c.category}</th><th>${c.patient}</th><th>${c.status}</th></tr></thead>
+      <tbody>${myTickets.map(t=>`
+        <tr class="rowlink" onclick="go('hospital','review',{ticket:'${t.id}'})">
+          <td class="ticket">${ltr(t.id)}</td><td>${CATS[t.catKey][state.lang].t}</td><td>${t.patient[state.lang]}</td><td>${badge(t.status)}</td>
+        </tr>`).join("")}</tbody></table>
+    </div>`;
+}
+
+function renderHospitalReview(){ return ticketDetail("hospital"); }
+
+/* ---------------------------------------------------------
+   Commitment Administration screens
+--------------------------------------------------------- */
+function renderCommitmentQueue(){
+  const s = S(); const p = s.commitmentQueue; const c = s.col;
+  const esc = TICKETS.filter(t=>t.path==="court" || t.status==="escalated");
+  return `
+    <div class="page-head"><div><h1>${p.title}</h1><div class="sub">${p.sub}</div></div></div>
+    <div class="kpi-row">
+      <div class="kpi"><div class="n">${esc.length}</div><div class="l">${p.kAwait}</div></div>
+      <div class="kpi"><div class="n">1</div><div class="l">${p.kCourt}</div></div>
+      <div class="kpi"><div class="n">${ltr("9.4d")}</div><div class="l">${p.kAvg}</div></div>
+      <div class="kpi"><div class="n">23</div><div class="l">${p.kClosed}</div></div>
+    </div>
+    <div class="card"><div class="card-head"><h3>${p.queue}</h3></div>
+    <table><thead><tr><th>${c.ticket}</th><th>${c.hospital}</th><th>${c.category}</th><th>${c.status}</th></tr></thead>
+    <tbody>${esc.map(t=>`
+      <tr class="rowlink" onclick="go('commitment','decision',{ticket:'${t.id}'})">
+        <td class="ticket">${ltr(t.id)}</td><td>${HOSP[t.hospKey][state.lang]}</td><td>${CATS[t.catKey][state.lang].t}</td><td>${badge(t.status)}</td>
+      </tr>`).join("")}</tbody></table></div>`;
+}
+
+function renderCommitmentDecision(){
+  const s = S(); const p = s.commitmentDecision;
+  if(!state.ticket) return renderCommitmentQueue();
+  const t = TICKETS.find(x=>x.id===state.ticket)||TICKETS[1];
+
+  let title, leftCard;
+  if(t.status==='judgement'){
+    title = p.closedTitle(t.id);
+    leftCard = `
+      <div class="card card-pad">
+        <h3 style="margin-top:0;font-size:14px">${p.closedTitle(t.id)}</h3>
+        <p style="color:var(--ink-soft);font-size:13.5px;line-height:1.7">${p.closedNote}</p>
+      </div>`;
+  } else if(t.status==='judgeWait'){
+    title = p.judgementTitle(t.id);
+    leftCard = `
+      <div class="card card-pad">
+        <h3 style="margin-top:0;font-size:14px">${p.judgementTitle(t.id)}</h3>
+        <label class="f" style="margin-top:0">${p.verdictLbl}</label>
+        <select class="f" id="judgementVerdict">
+          <option value="upheld">${p.verdictUpheld}</option>
+          <option value="dismissed">${p.verdictDismissed}</option>
+          <option value="settled">${p.verdictSettled}</option>
+        </select>
+        <label class="f">${p.judgementNotesLbl}</label>
+        <textarea class="f" id="judgementText" placeholder="${p.judgementNotesPh}"></textarea>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px" onclick="recordFinalJudgement('${t.id}')">${p.recordJudgementBtn}</button>
+      </div>`;
+  } else if(t.status==='hearing'){
+    title = p.sessionTitle(t.id);
+    leftCard = `
+      <div class="card card-pad">
+        <h3 style="margin-top:0;font-size:14px">${p.sessionTitle(t.id)}</h3>
+        <label class="f" style="margin-top:0">${p.sessionBriefLbl}</label>
+        <textarea class="f" id="sessionBriefText" placeholder="${p.sessionBriefPh}"></textarea>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px" onclick="recordSessionBrief('${t.id}')">${p.recordSessionBtn}</button>
+      </div>`;
+  } else {
+    title = p.investigate(t.id);
+    leftCard = `
+      <div class="card card-pad">
+        <h3 style="margin-top:0;font-size:14px">${p.findings}</h3>
+        <textarea class="f" id="findingsText" placeholder="${p.findingsPh}"></textarea>
+        <label class="f">${p.decisionLbl}</label>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="commitmentClose('${t.id}')">${p.close}</button>
+          <button class="btn btn-danger-o" style="flex:1;justify-content:center" onclick="commitmentEscalateCourt('${t.id}')">${p.escalateCourt}</button>
+        </div>
+      </div>`;
+  }
+
+  return `
+    <div class="breadcrumb"><b onclick="go('commitment','queue',{ticket:null})">← ${p.back}</b></div>
+    <div class="page-head"><div><h1>${title}</h1><div class="sub">${CATS[t.catKey][state.lang].t} · ${HOSP[t.hospKey][state.lang]}</div></div>${badge(t.status)}</div>
+    <div class="grid2">
+      ${leftCard}
+      <div class="card card-pad" style="height:fit-content">
+        <h3 style="margin-top:0;font-size:14px">${p.caseJourney}</h3>
+        ${railHTML(t.stage, t.path)}
+      </div>
+    </div>`;
+}
+
+/* ---------------------------------------------------------
+   Health Cluster dashboard
+--------------------------------------------------------- */
+function renderClusterDashboard(){
+  const s = S(); const p = s.clusterDash;
+  const liveByHosp = {};
+  TICKETS.forEach(t => { liveByHosp[t.hospKey] = (liveByHosp[t.hospKey]||0) + 1; });
+  const combined = HOSPITALS.map(h => ({...h, live: h.complaints + (liveByHosp[h.key]||0)}));
+  const max = Math.max(...combined.map(h=>h.live));
+  return `
+    <div class="page-head"><div><h1>${p.title}</h1><div class="sub">${p.sub}</div></div></div>
+    <div class="kpi-row">
+      <div class="kpi"><div class="n">425</div><div class="l">${p.kTotal}</div></div>
+      <div class="kpi"><div class="n">68%</div><div class="l">${p.kRate}</div></div>
+      <div class="kpi"><div class="n">${ltr("7.1d")}</div><div class="l">${p.kAvg}</div></div>
+      <div class="kpi"><div class="n">6%</div><div class="l">${p.kCourt}</div></div>
+    </div>
+    <div class="grid2" style="margin-bottom:18px">
+      <div class="card card-pad">
+        <h3 style="margin-top:0;font-size:14px">${p.byHospital}</h3>
+        <div class="bars">
+          ${combined.map(h=>`
+            <div class="bar-wrap">
+              <div class="bar-val">${h.live}</div>
+              <div class="bar" style="height:${(h.live/max*130)}px"></div>
+              <div class="bar-lbl">${kpiDot(h)}${HOSP[h.key][state.lang]}</div>
+            </div>`).join("")}
+        </div>
+      </div>
+      <div class="card card-pad">
+        <h3 style="margin-top:0;font-size:14px">${p.typeBreak}</h3>
+        ${donut([
+          {label:CATS.error[state.lang].t, val:34, color:"#0C4A3B"},
+          {label:CATS.mistreat[state.lang].t, val:22, color:"#B8863A"},
+          {label:CATS.medication[state.lang].t, val:18, color:"#C9932F"},
+          {label:CATS.emergency[state.lang].t, val:14, color:"#B23A2E"},
+          {label:p.other, val:12, color:"#5B6D66"},
+        ])}
+        <p style="font-size:11.5px;color:var(--ink-3);line-height:1.6;margin:10px 0 0;padding-top:10px;border-top:1px dashed var(--line)">${p.diagCaption}</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>${p.perf}</h3></div>
+      <table><thead><tr><th>${s.col.hospital}</th><th>${p.colComplaints}</th><th>${p.colResolved}</th><th>${p.colRate}</th><th>${p.colAvgDays}</th><th>${p.colStatus}</th></tr></thead>
+      <tbody>${HOSPITALS.map(h=>`
+        <tr><td>${HOSP[h.key][state.lang]}</td><td>${h.complaints}</td><td>${h.resolved}</td>
+        <td>${Math.round(h.resolved/h.complaints*100)}%</td><td>${ltr(h.avgDays+"d")}</td><td>${kpiDot(h)}${perfStatus(h).label[state.lang]}</td></tr>`).join("")}</tbody></table>
+    </div>`;
+}
+
+function donut(items){
+  const total = items.reduce((a,b)=>a+b.val,0);
+  let acc = 0;
+  const r=52,cx=70,cy=70,circ=2*Math.PI*r;
+  const segs = items.map(it=>{
+    const frac = it.val/total;
+    const dash = frac*circ;
+    const seg = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${it.color}" stroke-width="18" stroke-dasharray="${dash} ${circ-dash}" stroke-dashoffset="${-acc}" transform="rotate(-90 ${cx} ${cy})"/>`;
+    acc += dash;
+    return seg;
+  }).join("");
+  return `<div style="display:flex;align-items:center;gap:20px">
+    <svg width="140" height="140" viewBox="0 0 140 140" style="flex-shrink:0">${segs}</svg>
+    <div class="legend" style="flex-direction:column;align-items:flex-start">
+      ${items.map(it=>`<div class="li"><span class="sw" style="background:${it.color}"></span>${it.label} — ${it.val}%</div>`).join("")}
+    </div>
+  </div>`;
+}
+
+/* ---------------------------------------------------------
+   Ministry of Health dashboard
+--------------------------------------------------------- */
+function renderMinistryDashboard(){
+  const s = S(); const p = s.ministryDash;
+  return `
+    <div class="page-head"><div><h1>${p.title}</h1><div class="sub">${p.sub}</div></div></div>
+    <div class="kpi-row">
+      <div class="kpi"><div class="n">${ltr("1,671")}</div><div class="l">${p.kNational}</div></div>
+      <div class="kpi"><div class="n">71%</div><div class="l">${p.kRate}</div></div>
+      <div class="kpi"><div class="n">142</div><div class="l">${p.kCourt}</div></div>
+      <div class="kpi"><div class="n">${ltr("340d")}</div><div class="l">${p.kPending}</div></div>
+    </div>
+    <div class="card card-pad" style="margin-bottom:18px">
+      <h3 style="margin-top:0;font-size:14px">${p.registrySearch}</h3>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+        <div style="flex:1;min-width:220px">
+          <input class="f" id="registrySearchInput" placeholder="${p.registrySearchPh}" style="margin:0" onkeydown="if(event.key==='Enter')searchProviderRegistry()">
+        </div>
+        <button class="btn btn-primary" onclick="searchProviderRegistry()">${p.registrySearchBtn}</button>
+      </div>
+      <p style="font-size:11.5px;color:var(--ink-3);margin:8px 0 0">${p.registryHint}</p>
+      <div id="registryResult"></div>
+    </div>
+    <div class="card card-pad" style="margin-bottom:18px">
+      <h3 style="margin-top:0;font-size:14px">${p.byCluster}</h3>
+      <div class="region-grid">
+        ${REGIONS.map(r=>`
+          <div class="region">
+            <div class="n">${r.n}</div><div class="r">${REGION_NAMES[r.key][state.lang]}</div>
+            <div class="bar-mini"><i style="width:${r.pct}%"></i></div>
+          </div>`).join("")}
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card card-pad">
+        <h3 style="margin-top:0;font-size:14px">${p.trend}</h3>
+        ${lineChart([210,238,265,241,289,306])}
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>${p.courtMon}</h3></div>
+        <table><thead><tr><th>${s.col.ticket}</th><th>${s.col.cluster}</th><th>${s.col.stage}</th></tr></thead>
+        <tbody>
+          <tr><td class="ticket">${ltr("HC-88190")}</td><td>${REGION_NAMES.riyadh.city[state.lang]}</td><td>${badge("hearing")}</td></tr>
+          <tr><td class="ticket">${ltr("HC-87903")}</td><td>${REGION_NAMES.makkah.city[state.lang]}</td><td>${badge("judgement")}</td></tr>
+          <tr><td class="ticket">${ltr("HC-87711")}</td><td>${REGION_NAMES.eastern.city[state.lang]}</td><td>${badge("escalated")}</td></tr>
+        </tbody></table>
+      </div>
+    </div>`;
+}
+
+function lineChart(vals){
+  const w=460,h=160,pad=24;
+  const max=Math.max(...vals), min=Math.min(...vals);
+  const pts = vals.map((v,i)=>{
+    const x = pad + i*(w-2*pad)/(vals.length-1);
+    const y = h-pad - (v-min)/(max-min||1)*(h-2*pad);
+    return [x,y];
+  });
+  const path = pts.map((p,i)=>(i===0?"M":"L")+p[0]+","+p[1]).join(" ");
+  const area = path + ` L${pts[pts.length-1][0]},${h-pad} L${pts[0][0]},${h-pad} Z`;
+  return `<div style="direction:ltr"><svg width="100%" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="overflow:visible">
+    <path d="${area}" fill="var(--primary-tint)"/>
+    <path d="${path}" fill="none" stroke="var(--primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    ${pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="var(--primary)"/>`).join("")}
+  </svg></div>`;
+}
+
+/* ---------------------------------------------------------
+   Router
+--------------------------------------------------------- */
+function render(){
+  topRight();
+  const app = document.getElementById("app");
+  if(!state.role){
+    app.innerHTML = renderLanding();
+    app.style.display="block";
+    return;
+  }
+  app.style.display="flex";
+  const key = state.role+":"+state.screen;
+  const map = {
+    "patient:dashboard": renderPatientDashboard,
+    "patient:file": renderPatientFile,
+    "patient:track": renderPatientTrack,
+    "provider:inbox": renderProviderInbox,
+    "provider:respond": renderProviderRespond,
+    "provider:verify": renderProviderVerify,
+    "hospital:dashboard": renderHospitalDashboard,
+    "hospital:review": renderHospitalReview,
+    "commitment:queue": renderCommitmentQueue,
+    "commitment:decision": renderCommitmentDecision,
+    "cluster:dashboard": renderClusterDashboard,
+    "ministry:dashboard": renderMinistryDashboard,
+  };
+  const content = (map[key]||renderPatientDashboard)();
+  app.innerHTML = sidebarHTML() + `<div class="main">${content}</div>`;
+}
+
+render();
+</script>
+</body>
+</html>
